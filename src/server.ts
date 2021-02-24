@@ -1,10 +1,8 @@
-import http from "http";
+import http from 'http'
+import app from './app'
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080
 
-http
-  .createServer((_req, res) => {
-    res.write("Hello World!");
-    res.end();
-  })
-  .listen(PORT);
+http.createServer(app).listen(PORT, () => {
+  console.log(`🚀 Server is listening on http://localhost:${PORT}`)
+})
