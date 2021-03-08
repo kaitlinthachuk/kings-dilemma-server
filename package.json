@@ -8,7 +8,7 @@
     "build": "tsc",
     "clean": "rm -rf build",
     "start": "echo run with yarn dev",
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon --exec ts-node src/index.ts",
     "prettier": "prettier --write ./**/*.{js,ts,json}",
     "lint": "eslint --fix",
     "test": "NODE_ENV=test jest"
@@ -28,6 +28,7 @@
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
+    "socket.io-client": "^3.1.1",
     "supertest": "^6.1.3",
     "ts-jest": "^26.5.2",
     "ts-node": "^9.1.1",
@@ -39,6 +40,7 @@
     }
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "socket.io": "^3.1.1"
   }
