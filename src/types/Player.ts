@@ -12,6 +12,7 @@ export class Player {
   prestige: number
   crave: number
   houseNumber: number
+  //houseUrl: string TODO should the UI have all the urls?
   // socket: Socket
 
   constructor(house: string, name: string) {
