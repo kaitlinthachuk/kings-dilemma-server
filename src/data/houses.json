@@ -1,9 +1,37 @@
 {
-  "Tork": {
-    "houseNumber": 0,
-    "houseImageUrl": ""
+  "tork": {
+    "houseNumber": 3,
+    "motto": "Hit Hard, We Can Take It",
+    "houseName": "House Rhinehardt",
+    "kingdom": "Marquises of Tork",
+    "id": "tork"
   },
-  "Solad": {
-    "houseNumber": 1
+  "solad": {
+    "houseNumber": 2,
+    "motto": "Nothing is as it seems",
+    "houseName": "House Stormcloak",
+    "kingdom": "Dukes of Solad",
+    "id": "solad"
+  },
+  "tiryll": {
+    "houseNumber": 9,
+    "motto": "No Blood Is Like Our Blood",
+    "houseName": "House Irvine",
+    "kingdom": "Marquises of Tiryll",
+    "id": "tiryll"
+  },
+  "crann": {
+    "houseNumber": 11,
+    "motto": "Tranquility In Death",
+    "houseName": "House Flora",
+    "kingdom": "Marquises of Crann",
+    "id": "crann"
+  },
+  "coden": {
+    "houseNumber": 4,
+    "motto": "Forests Grow Strong",
+    "houseName": "House Arborstella",
+    "kingdom": "Dukes of Coden",
+    "id": "coden"
   }
 }

@@ -3,6 +3,7 @@ import { SessionManager } from './types'
 import { Player } from './types'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import houseData from './data/houses.json'
 
 const app = express()
 
@@ -14,6 +15,10 @@ app.get('/', (req: Request, res: Response) => {
     message: 'OK',
     uptime: process.uptime(),
   })
+})
+
+app.get('/houses', (req: Request, res: Response) => {
+  res.send(houseData)
 })
 
 type PlayerReq = { house: string; name: string }
