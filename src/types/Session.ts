@@ -13,6 +13,7 @@ enum State {
   voting,
   voteOver,
   gameOver,
+  lobby,
 }
 
 export class Session {
@@ -35,13 +36,20 @@ export class Session {
   leaderChoice: string[]
   //votingManager: VotingManager
 
-  constructor(roomId: string, players: Player[]) {
+  constructor(roomId: string) {
     this.roomId = roomId
-    //this.votingManager = new VotingManager()
+    this.state = State.lobby
     // @ts-ignore
     this.players = players.reduce((acc, curr) => (acc[curr.name] = curr), {})
 
-    players.sort((a, b) => a.prestige - b.prestige) //asc
+    players.sort((a, b) => {
+      if (a.prestige === b.prestige) {
+        return a.houseNumber - b.houseNumber
+      }
+      else {
+        return a.prestige - b.prestige
+      }
+    }) //asc
     this.leader = players[players.length - 1].house
     this.moderator = players[0].house
     this.turnOrder = players.map((player) => player.house)
@@ -74,7 +82,6 @@ export class Session {
       secretAgendas: this.secretAgendas,
       players: this.players, //needed for agenda tokens and displaying the other houses in the UI
       turnOrder: this.turnOrder, //needed by sidebar in UI 
-      //voteState: this.votingManager.getVoteState(),
       availablePower: this.availablePower,
       votes: this.votes,
       ayeOutcomes: this.ayeOutcomes,
@@ -98,13 +105,17 @@ export class Session {
     })
   }
 
-  updateSecretAgenda(agenda: SecretAgenda, house: string) {
+  updateSecretAgenda(secretAgendaName: string, house: string) {
     const agendaIndex = this.secretAgendas.findIndex(
-      (element) => element.name === agenda.name,
+      (element) => element.name === secretAgendaName,
     )
-    this.secretAgendas.splice(agendaIndex, 1)
-    this.players[house].secretAgenda = agenda
-    this.turn = this.whoIsNext(house)
+    let chosenAgenda = this.secretAgendas.splice(agendaIndex, 1)
+    this.players[house].secretAgenda = chosenAgenda[0]
+    if (this.secretAgendas.length === 0) {
+      this.state = State.default
+    } else {
+      this.turn = this.whoIsNext(house)
+    }
   }
 
   startVoting() {
@@ -115,6 +126,11 @@ export class Session {
     this.turnOrder = [this.leader, ...shuffled]
     this.state = State.voting
     this.turn = this.turnOrder[0]
+    this.votes = {}
+    this.leaderTie = false
+    this.voteTie = false
+    this.winner = ""
+    this.leaderChoice = []
   }
 
   updateVote(vote: Vote) {
@@ -261,6 +277,7 @@ export class Session {
 
     votes.forEach(vote => {
       this.players[vote.house].power += powerPer
+      this.availablePower -= powerPer
     })
   }
 
@@ -281,6 +298,7 @@ export class Session {
   private takePowerFromWinners(votes: Vote[]) {
     votes.forEach(vote => {
       this.players[vote.house].power -= vote.power
+      this.availablePower += vote.power
     })
   }
 }

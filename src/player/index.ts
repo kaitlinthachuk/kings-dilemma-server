@@ -77,4 +77,28 @@ export default (io: Server, socket: Socket) => {
 
   socket.on('player:gameOver', gameOver) // TODO should GM specific actions come from player?
 
+  const selectSecretAgenda = (
+    sessionId: string,
+    house: string,
+    secretAgendaName: string
+  ) => {
+    const session = sessionManager.getSession(sessionId)
+    session.updateSecretAgenda(secretAgendaName, house)
+    io.emit('game:state', session.getState()) //TODO verify this is correct
+  }
+
+  socket.on('player:secretAgenda', selectSecretAgenda) // TODO should GM specific actions come from player?
+
+  const selectSecretAgenda = (
+    sessionId: string,
+    house: string,
+    secretAgendaName: string
+  ) => {
+    const session = sessionManager.getSession(sessionId)
+    session.updateSecretAgenda(secretAgendaName, house)
+    io.emit('game:state', session.getState()) //TODO verify this is correct
+  }
+
+  socket.on('player:newPlayer', selectPlayer) // TODO should GM specific actions come from player?
+
 }
