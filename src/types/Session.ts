@@ -189,7 +189,7 @@ export class Session {
   private seperateVotes() {
     let ayeVotes: Vote[] = [],
       nayVotes: Vote[] = [],
-      gatherVotes: Vote[] = [],
+      gatherVotes: Vote[] = []
 
     for (let house in this.votes) {
       switch (this.votes[house].type) {

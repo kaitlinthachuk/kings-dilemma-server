@@ -19,7 +19,7 @@ export class SessionManager {
 
   createSession(players: Player[]): string {
     // hardcode id of 0 because we will only have one session for now
-    const id = 'room-0'
+    const id = '0'
     this.sessions[id] = new Session(id, players)
     return id
   }

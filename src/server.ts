@@ -5,7 +5,12 @@ import registerPlayerHandlers from './player'
 
 const initServer = (): HTTPServer => {
   const httpServer = http.createServer(app)
-  const io = new Server(httpServer)
+  const io = new Server(httpServer, {
+    cors: {
+      origin: 'http://localhost:3001',
+      methods: ['GET', 'POST']
+    }
+  })
 
 
   io.on('connection', (socket: Socket) => {

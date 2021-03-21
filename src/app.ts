@@ -2,9 +2,11 @@ import express, { Request, Response, NextFunction } from 'express'
 import { SessionManager } from './types'
 import { Player } from './types'
 import bodyParser from 'body-parser'
+import cors from 'cors'
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json())
 
 app.get('/', (req: Request, res: Response) => {

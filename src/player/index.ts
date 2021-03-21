@@ -15,8 +15,10 @@ export default (io: Server, socket: Socket) => {
     console.log(`${house} voted ${vote.type} with ${vote.power}`)
     const session = sessionManager.getSession(sessionId)
     session.updateVote(vote)
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
+
+  socket.on('hi', () => io.emit('hello'))
 
   socket.on('player:vote', vote)
 
@@ -27,7 +29,7 @@ export default (io: Server, socket: Socket) => {
   ) => {
     const session = sessionManager.getSession(sessionId)
     session.setOutcomes(ayeOutcomes, nayOutcomes)
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
 
   socket.on('player:setOutcomes', setOutcomes)
@@ -38,7 +40,7 @@ export default (io: Server, socket: Socket) => {
   ) => {
     const session = sessionManager.getSession(sessionId)
     session.setAgendaTokens(assignments)
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
 
   socket.on('player:setAgendaTokens', setAgendaTokens)
@@ -49,7 +51,7 @@ export default (io: Server, socket: Socket) => {
   ) => {
     const session = sessionManager.getSession(sessionId)
     session.breakTie(winner)
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
 
   socket.on('player:breakTie', breakTie)
@@ -60,7 +62,7 @@ export default (io: Server, socket: Socket) => {
   ) => {
     const session = sessionManager.getSession(sessionId)
     session.breakLeaderTie(winner)
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
 
   socket.on('player:breakLeaderTie', breakLeaderTie)
@@ -70,7 +72,7 @@ export default (io: Server, socket: Socket) => {
   ) => {
     const session = sessionManager.getSession(sessionId)
     session.gameOver()
-    io.emit(session.getState()) //TODO verify this is correct
+    io.emit('game:state', session.getState()) //TODO verify this is correct
   }
 
   socket.on('player:gameOver', gameOver) // TODO should GM specific actions come from player?
