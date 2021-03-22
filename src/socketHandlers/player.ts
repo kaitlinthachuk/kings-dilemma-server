@@ -6,6 +6,23 @@ import { Vote } from '../types/Vote'
 const sessionManager = SessionManager.getInstance()
 
 export default (io: Server, socket: Socket) => {
+  socket.on('player:join', ({sessionId}) => {
+    const session = sessionManager.getSession(sessionId)
+    socket.join(sessionId) // join room
+    socket.emit('game:state', session.getState())
+  })
+
+  socket.on('player:selectHouse', ({sessionId, house}) => {
+    const session = sessionManager.getSession(sessionId)
+    session.addPlayer(house)
+    socket.to(sessionId).emit('game:state', session.getState())
+  })
+
+  socket.on('player:selectSecretAgenda', ({sessionId, house, secretAgendaName}) => {
+    const session = sessionManager.getSession(sessionId)
+    session.updateSecretAgenda(secretAgendaName, house)
+    socket.to(sessionId).emit('game:state', session.getState())
+  })
 
   const vote = (
     sessionId: string,
@@ -17,8 +34,6 @@ export default (io: Server, socket: Socket) => {
     session.updateVote(vote)
     io.emit('game:state', session.getState()) //TODO verify this is correct
   }
-
-  socket.on('hi', () => io.emit('hello'))
 
   socket.on('player:vote', vote)
 
@@ -45,60 +60,22 @@ export default (io: Server, socket: Socket) => {
 
   socket.on('player:setAgendaTokens', setAgendaTokens)
 
-  const breakTie = (
-    sessionId: string,
-    winner: string,
-  ) => {
+
+  socket.on('player:breakTie', ({sessionId, winner}) => {
     const session = sessionManager.getSession(sessionId)
     session.breakTie(winner)
-    io.emit('game:state', session.getState()) //TODO verify this is correct
-  }
+    socket.to(sessionId).emit('game:state', session.getState())
+  })
 
-  socket.on('player:breakTie', breakTie)
-
-  const breakLeaderTie = (
-    sessionId: string,
-    winner: string,
-  ) => {
+  socket.on('player:breakLeaderTie', ({sessionId, winner}) => {
     const session = sessionManager.getSession(sessionId)
     session.breakLeaderTie(winner)
-    io.emit('game:state', session.getState()) //TODO verify this is correct
-  }
+    socket.to(sessionId).emit('game:state', session.getState())
+  })
 
-  socket.on('player:breakLeaderTie', breakLeaderTie)
-
-  const gameOver = (
-    sessionId: string,
-  ) => {
+  socket.on('player:gameOver', ({sessionId}) => {
     const session = sessionManager.getSession(sessionId)
-    session.gameOver()
-    io.emit('game:state', session.getState()) //TODO verify this is correct
-  }
-
-  socket.on('player:gameOver', gameOver) // TODO should GM specific actions come from player?
-
-  const selectSecretAgenda = (
-    sessionId: string,
-    house: string,
-    secretAgendaName: string
-  ) => {
-    const session = sessionManager.getSession(sessionId)
-    session.updateSecretAgenda(secretAgendaName, house)
-    io.emit('game:state', session.getState()) //TODO verify this is correct
-  }
-
-  socket.on('player:secretAgenda', selectSecretAgenda) // TODO should GM specific actions come from player?
-
-  const selectSecretAgenda = (
-    sessionId: string,
-    house: string,
-    secretAgendaName: string
-  ) => {
-    const session = sessionManager.getSession(sessionId)
-    session.updateSecretAgenda(secretAgendaName, house)
-    io.emit('game:state', session.getState()) //TODO verify this is correct
-  }
-
-  socket.on('player:newPlayer', selectPlayer) // TODO should GM specific actions come from player?
-
+    session.endGame()
+    socket.to(sessionId).emit('game:state', session.getState())
+  }) // TODO should GM specific actions come from player?
 }

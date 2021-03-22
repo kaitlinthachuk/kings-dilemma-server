@@ -1,30 +1,29 @@
 import { Player } from './Player'
 import { SecretAgenda } from './SecretAgenda'
 import secretAgendasData from '../data/secretAgendas.json'
-import { VotingManager } from './VotingManager'
 import { Outcome } from './Outcome'
 import { AgendaToken } from './AgendaToken'
 import { Vote } from './Vote'
 import * as utils from '../utils'
 
 enum State {
-  default,
-  secretAgenda,
-  voting,
-  voteOver,
-  gameOver,
-  lobby,
+  default = 'default',
+  secretAgenda = 'secretAgenda',
+  voting = 'voting',
+  voteOver = 'voteOver',
+  gameOver = 'gameOver',
+  lobby = 'lobby',
 }
 
 export class Session {
   roomId: string // session id
   players: Record<string, Player>
+  state: State
+  secretAgendas: SecretAgenda[]
   turn: string
   turnOrder: string[]
   leader: string
   moderator: string
-  state: State
-  secretAgendas: SecretAgenda[]
   //everything below this is needed for voting only TODO potentially refactor this?
   votes: Record<string, Vote> // key: house
   availablePower: number
@@ -34,63 +33,58 @@ export class Session {
   voteTie: boolean
   winner: string
   leaderChoice: string[]
-  //votingManager: VotingManager
 
   constructor(roomId: string) {
     this.roomId = roomId
+    this.players = {}
     this.state = State.lobby
-    // @ts-ignore
-    this.players = players.reduce((acc, curr) => (acc[curr.name] = curr), {})
 
-    players.sort((a, b) => {
-      if (a.prestige === b.prestige) {
-        return a.houseNumber - b.houseNumber
-      }
-      else {
-        return a.prestige - b.prestige
-      }
-    }) //asc
-    this.leader = players[players.length - 1].house
-    this.moderator = players[0].house
-    this.turnOrder = players.map((player) => player.house)
-    this.turn = this.moderator
+    this.secretAgendas = []
+    this.turn = ''
+    this.turnOrder = []
+    this.leader = ''
+    this.moderator = ''
 
-    // randomly remove one secret agenda
-    secretAgendasData.splice(
-      Math.floor(Math.random() * secretAgendasData.length - 1),
-      1,
-    )
-    this.secretAgendas = secretAgendasData
-    this.state = State.secretAgenda
     this.votes = {}
     this.availablePower = 3
     this.ayeOutcomes = []
     this.nayOutcomes = []
     this.leaderTie = false
     this.voteTie = false
-    this.winner = ""
+    this.winner = ''
     this.leaderChoice = []
   }
 
-  getState() {
-    return {
-      roomId: this.roomId,
-      turn: this.turn,
-      leader: this.leader,
-      moderator: this.moderator,
-      state: this.state,
-      secretAgendas: this.secretAgendas,
-      players: this.players, //needed for agenda tokens and displaying the other houses in the UI
-      turnOrder: this.turnOrder, //needed by sidebar in UI 
-      availablePower: this.availablePower,
-      votes: this.votes,
-      ayeOutcomes: this.ayeOutcomes,
-      nayOutcomes: this.nayOutcomes,
-      leaderTie: this.leaderTie,
-      leaderChoice: this.leaderChoice,
-      voteTie: this.voteTie,
-      winner: this.winner
+  addPlayer(house: string) {
+    this.players[house] = new Player(house)
+  }
+
+  startGame() {
+    this.state = State.secretAgenda
+    const players = Object.values(this.players).sort((a, b) => {
+      if (a.prestige === b.prestige) {
+        return a.houseNumber - b.houseNumber
+      }
+      return a.prestige - b.prestige
+    })
+    this.leader = players[players.length - 1].house
+    this.moderator = players[0].house
+    this.turnOrder = players.map((player) => player.house)
+    this.turn = this.moderator
+    // randomly select secret agendas
+    for (let i = 0; i < players.length; i++) {
+      this.secretAgendas.push(
+        secretAgendasData.splice(
+          Math.floor(Math.random() * secretAgendasData.length - 1),
+          1,
+        )[0],
+      )
     }
+  }
+
+  endGame() {
+    this.state = State.gameOver
+    //have UI do coin and power sorting?
   }
 
   setOutcomes(ayeOutcomes: Outcome[], nayOutcomes: Outcome[]) {
@@ -99,7 +93,7 @@ export class Session {
     this.startVoting()
   }
 
-  setAgendaTokens(assignents: { house: string, tokens: AgendaToken[] }[]) {
+  setAgendaTokens(assignents: { house: string; tokens: AgendaToken[] }[]) {
     assignents.forEach((val) => {
       this.players[val.house].agendaTokens = val.tokens
     })
@@ -109,7 +103,7 @@ export class Session {
     const agendaIndex = this.secretAgendas.findIndex(
       (element) => element.name === secretAgendaName,
     )
-    let chosenAgenda = this.secretAgendas.splice(agendaIndex, 1)
+    const chosenAgenda = this.secretAgendas.splice(agendaIndex, 1)
     this.players[house].secretAgenda = chosenAgenda[0]
     if (this.secretAgendas.length === 0) {
       this.state = State.default
@@ -129,7 +123,7 @@ export class Session {
     this.votes = {}
     this.leaderTie = false
     this.voteTie = false
-    this.winner = ""
+    this.winner = ''
     this.leaderChoice = []
   }
 
@@ -153,8 +147,10 @@ export class Session {
     let winnerVotes = votes[this.winner]
     this.voteTie = false
 
-    if (this.checkForLeaderTie(winnerVotes)) { return }
-    this.distriutePower(votes['gather'])
+    if (this.checkForLeaderTie(winnerVotes)) {
+      return
+    }
+    this.distributePower(votes['gather'])
     this.takePowerFromWinners(votes[this.winner])
   }
 
@@ -164,13 +160,8 @@ export class Session {
     this.leaderChoice = []
     this.leader = winner
 
-    this.distriutePower(votes['gather'])
+    this.distributePower(votes['gather'])
     this.takePowerFromWinners(votes[this.winner])
-  }
-
-  gameOver() {
-    this.state = State.gameOver
-    //have UI do coin and power sorting?
   }
 
   private whoIsNext(house: string) {
@@ -216,17 +207,20 @@ export class Session {
         case 'gather':
           gatherVotes.push(this.votes[house])
         default:
-          console.log("Became mod!")
+          console.log('Became mod!')
       }
     }
-    const returnObj: Record<string, Vote[]> = { 'aye': ayeVotes, 'nay': nayVotes, 'gather': gatherVotes }
+    const returnObj: Record<string, Vote[]> = {
+      aye: ayeVotes,
+      nay: nayVotes,
+      gather: gatherVotes,
+    }
     return returnObj
-
   }
 
   private countPower(votes: Vote[]) {
     let power = 0
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       power += vote.power
     })
     return power
@@ -247,8 +241,10 @@ export class Session {
     this.winner = ayePower > nayPower ? 'aye' : 'nay'
     let winnerVotes = votes[this.winner]
 
-    if (this.checkForLeaderTie(winnerVotes)) { return }
-    this.distriutePower(votes['gather'])
+    if (this.checkForLeaderTie(winnerVotes)) {
+      return
+    }
+    this.distributePower(votes['gather'])
     this.takePowerFromWinners(votes[this.winner])
   }
 
@@ -268,14 +264,14 @@ export class Session {
     }
   }
 
-  private distriutePower(votes: Vote[]) {
+  private distributePower(votes: Vote[]) {
     if (votes.length === 0) {
       return
     }
 
     let powerPer = Math.floor(this.availablePower / votes.length)
 
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       this.players[vote.house].power += powerPer
       this.availablePower -= powerPer
     })
@@ -286,19 +282,44 @@ export class Session {
       return b.power - a.power //desc
     })
 
-    let leaders = votes.filter((vote, index, array) => {
-      return vote.power === array[0].power
-    }).map(vote => {
-      return vote.house
-    })
+    let leaders = votes
+      .filter((vote, index, array) => {
+        return vote.power === array[0].power
+      })
+      .map((vote) => {
+        return vote.house
+      })
 
     return leaders
   }
 
   private takePowerFromWinners(votes: Vote[]) {
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       this.players[vote.house].power -= vote.power
       this.availablePower += vote.power
     })
+  }
+
+  getState() {
+    const gameState = {
+      roomId: this.roomId,
+      turn: this.turn,
+      leader: this.leader,
+      moderator: this.moderator,
+      state: this.state,
+      secretAgendas: this.secretAgendas,
+      players: this.players, //needed for agenda tokens and displaying the other houses in the UI
+      turnOrder: this.turnOrder, //needed by sidebar in UI
+      availablePower: this.availablePower,
+      votes: this.votes,
+      ayeOutcomes: this.ayeOutcomes,
+      nayOutcomes: this.nayOutcomes,
+      leaderTie: this.leaderTie,
+      leaderChoice: this.leaderChoice,
+      voteTie: this.voteTie,
+      winner: this.winner,
+    }
+    console.log(gameState)
+    return gameState
   }
 }

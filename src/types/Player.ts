@@ -4,7 +4,6 @@ import houseData from '../data/houses.json'
 
 export class Player {
   house: string // id
-  name: string
   coins: number
   power: number
   agendaTokens: AgendaToken[]
@@ -13,9 +12,8 @@ export class Player {
   crave: number
   houseNumber: number
 
-  constructor(house: string, name: string) {
+  constructor(house: string) {
     this.house = house
-    this.name = name
     this.coins = 10
     this.power = 8
     this.agendaTokens = []

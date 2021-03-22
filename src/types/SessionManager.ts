@@ -6,7 +6,7 @@ export class SessionManager {
   private sessions: Record<string, Session>
 
   private constructor() {
-    this.sessions = {}
+    this.sessions = {0: new Session('0')}
   }
 
   static getInstance(): SessionManager {
@@ -17,10 +17,8 @@ export class SessionManager {
     return SessionManager.instance
   }
 
-  createSession(players: Player[]): string {
-    // hardcode id of 0 because we will only have one session for now
-    const id = '0'
-    this.sessions[id] = new Session(id, players)
+  createSession(id: string): string {
+    this.sessions[id] = new Session(id)
     return id
   }
 

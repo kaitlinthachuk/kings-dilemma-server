@@ -1,7 +1,8 @@
 import http, { Server as HTTPServer } from 'http'
 import app from './app'
 import { Server, Socket } from 'socket.io'
-import registerPlayerHandlers from './player'
+import registerPlayerHandlers from './socketHandlers/player'
+import registerGameHandlers from './socketHandlers/game'
 
 const initServer = (): HTTPServer => {
   const httpServer = http.createServer(app)
@@ -12,10 +13,9 @@ const initServer = (): HTTPServer => {
     }
   })
 
-
   io.on('connection', (socket: Socket) => {
-    console.log('received connection to socket')
     registerPlayerHandlers(io, socket)
+    registerGameHandlers(io, socket)
   })
 
   return httpServer

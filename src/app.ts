@@ -21,19 +21,6 @@ app.get('/houses', (req: Request, res: Response) => {
   res.send(houseData)
 })
 
-type PlayerReq = { house: string; name: string }
-app.post('/sessions', (req: Request, res: Response) => {
-  const { players } = req.body
-  const newPlayers: Player[] = (players as PlayerReq[]).map(
-    ({ house, name }): Player => {
-      return new Player(house, name)
-    },
-  )
-  const sessionManager = SessionManager.getInstance()
-  const roomId = sessionManager.createSession(newPlayers)
-  res.json({ roomId })
-})
-
 // (super secret) game master route
 app.get('/gm', (req: Request, res: Response) => {
   const sessionManager = SessionManager.getInstance()

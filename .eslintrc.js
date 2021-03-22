@@ -11,5 +11,7 @@ module.exports = {
   ],
   rules: {
     'no-var': 'error',
+    'dot-notation': 'error',
+    'prefer-const': 'error',
   }
 }
