@@ -29,9 +29,9 @@ describe('Gameplay tests', () => {
     server.listen(async () => {
       // @ts-ignore
       const port = server.address().port
-      clients = await (await Promise.all(players.map(() => createClient(port)))).reduce((acc, curr) => {
-        
-      }, {})
+      clients = await (
+        await Promise.all(players.map(() => createClient(port)))
+      ).reduce((acc, curr) => {}, {})
       console.log('clients: ', clients)
       done()
     })
@@ -46,17 +46,15 @@ describe('Gameplay tests', () => {
     clients[0].emit('player:vote')
   })
 
-  it('basicTurnTest', () =>{
+  it('basicTurnTest', () => {
     // power in middle 0
     // leader is solad
     // moderator is crann
-    // availablePower is 3 
+    // availablePower is 3
     // state VOTING
     // turn solad
     // turnOrder solad, tork, crann, tiryll, coden
-
     //solad vote aye 3
-
     //verify turn is now tork
   })
 
@@ -64,17 +62,15 @@ describe('Gameplay tests', () => {
     // power in middle 0
     // leader is solad
     // moderator is crann
-    // availablePower is 3 
+    // availablePower is 3
     // state VOTING
     // turn solad
     // turnOrder solad, tork, crann, tiryll, coden
-
     // solad vote aye 3
     // tork vote aye 1
     // crann vote aye 1
     // tiryll vote aye 1
     // coden vote aye 1
-
     // aye win
     // power in middle 7
     // leader is solad
@@ -84,10 +80,9 @@ describe('Gameplay tests', () => {
   })
 
   it('should resolve all the ties', () => {
-
     // leader is solad
     // moderator is crann
-    // availablePower is 3 
+    // availablePower is 3
     // state VOTING
     // turn solad
     // turnOrder solad, tork, crann, tiryll, coden

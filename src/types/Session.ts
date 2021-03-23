@@ -16,7 +16,8 @@ enum State {
 }
 
 export class Session {
-  roomId: string // session id
+  private static instance: Session
+
   players: Record<string, Player>
   state: State
   secretAgendas: SecretAgenda[]
@@ -34,12 +35,13 @@ export class Session {
   winner: string
   leaderChoice: string[]
 
-  constructor(roomId: string) {
-    this.roomId = roomId
+  constructor() {
     this.players = {}
     this.state = State.lobby
 
-    this.secretAgendas = []
+    // randomly remove 1 secret agenda
+    secretAgendasData.splice(Math.floor(Math.random() * secretAgendasData.length - 1), 1)
+    this.secretAgendas = secretAgendasData
     this.turn = ''
     this.turnOrder = []
     this.leader = ''
@@ -53,6 +55,13 @@ export class Session {
     this.voteTie = false
     this.winner = ''
     this.leaderChoice = []
+  }
+
+  static getInstance(): Session {
+    if (!Session.instance) {
+      Session.instance = new Session()
+    }
+    return Session.instance
   }
 
   addPlayer(house: string) {
@@ -71,15 +80,6 @@ export class Session {
     this.moderator = players[0].house
     this.turnOrder = players.map((player) => player.house)
     this.turn = this.moderator
-    // randomly select secret agendas
-    for (let i = 0; i < players.length; i++) {
-      this.secretAgendas.push(
-        secretAgendasData.splice(
-          Math.floor(Math.random() * secretAgendasData.length - 1),
-          1,
-        )[0],
-      )
-    }
   }
 
   endGame() {
@@ -105,7 +105,7 @@ export class Session {
     )
     const chosenAgenda = this.secretAgendas.splice(agendaIndex, 1)
     this.players[house].secretAgenda = chosenAgenda[0]
-    if (this.secretAgendas.length === 0) {
+    if (Object.values(this.players).every(player => player.secretAgenda)) {
       this.state = State.default
     } else {
       this.turn = this.whoIsNext(house)
@@ -302,7 +302,6 @@ export class Session {
 
   getState() {
     const gameState = {
-      roomId: this.roomId,
       turn: this.turn,
       leader: this.leader,
       moderator: this.moderator,

@@ -1,11 +1,10 @@
 import { Server, Socket } from 'socket.io'
-import { SessionManager } from '../types/SessionManager'
-const sessionManager = SessionManager.getInstance()
+import { Session } from '../types/Session'
+const session = Session.getInstance()
 
 export default (io: Server, socket: Socket) => {
-  socket.on('game:start', ({ sessionId }) => {
-    const session = sessionManager.getSession(sessionId)
+  socket.on('game:start', () => {
     session.startGame()
-    socket.to(sessionId).emit('game:state', session.getState())
+    io.emit('game:state', session.getState())
   })
 }

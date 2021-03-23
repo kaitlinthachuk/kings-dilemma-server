@@ -1,6 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express'
-import { SessionManager } from './types'
-import { Player } from './types'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import houseData from './data/houses.json'
@@ -23,8 +21,7 @@ app.get('/houses', (req: Request, res: Response) => {
 
 // (super secret) game master route
 app.get('/gm', (req: Request, res: Response) => {
-  const sessionManager = SessionManager.getInstance()
-  res.json(sessionManager.getSession('0'))
+  res.json({})
 })
 
 // error handling middleware declared last
