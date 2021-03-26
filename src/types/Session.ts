@@ -134,8 +134,12 @@ export class Session {
       this.votes[vote.house] = vote
     }
 
+    if (vote.type === 'mod') {
+      this.updateModerator(vote.house)
+    }
+
     if (vote.power > this.maxPowerCommitted(this.votes)) {
-      this.leader = vote.house
+      this.updateLeader(vote.house)
     } else {
       this.checkIfVotingEnd(vote.house)
     }
@@ -151,17 +155,17 @@ export class Session {
       return
     }
     this.distributePower(votes['gather'])
-    this.takePowerFromWinners(votes[this.winner])
+    this.takePowerFromWinners(votes[winner])
   }
 
   breakLeaderTie(winner: string) {
     const votes = this.seperateVotes()
     this.leaderTie = false
     this.leaderChoice = []
-    this.leader = winner
+    this.updateLeader(winner)
 
     this.distributePower(votes['gather'])
-    this.takePowerFromWinners(votes[this.winner])
+    this.takePowerFromWinners(votes[winner])
   }
 
   private whoIsNext(house: string) {
@@ -258,7 +262,7 @@ export class Session {
         this.leaderChoice = potentialLeaders
         return true
       } else {
-        this.leader = potentialLeaders[0]
+        this.updateLeader(potentialLeaders[0])
         return false
       }
     }
@@ -298,6 +302,18 @@ export class Session {
       this.players[vote.house].power -= vote.power
       this.availablePower += vote.power
     })
+  }
+
+  private updateLeader(newLeader: string) {
+    this.players[this.leader].isLeader = false
+    this.leader = newLeader
+    this.players[newLeader].isLeader = true
+  }
+
+  private updateModerator(newModerator: string) {
+    this.players[this.moderator].isModerator = false
+    this.moderator = newModerator
+    this.players[newModerator].isModerator = true
   }
 
   getState() {

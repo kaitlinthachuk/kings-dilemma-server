@@ -11,6 +11,8 @@ export class Player {
   prestige: number
   crave: number
   houseNumber: number
+  isLeader: boolean
+  isModerator: boolean
 
   constructor(house: string) {
     this.house = house
@@ -21,5 +23,7 @@ export class Player {
     this.prestige = 0
     this.crave = 0
     this.houseNumber = (houseData as any)[house].houseNumber
+    this.isLeader = false
+    this.isModerator = false
   }
 }
