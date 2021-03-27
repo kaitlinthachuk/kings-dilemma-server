@@ -20,9 +20,7 @@ app.get('/houses', (req: Request, res: Response) => {
 })
 
 // (super secret) game master route
-app.get('/gm', (req: Request, res: Response) => {
-  res.json({})
-})
+app.use('/gm', express.static('public'))
 
 // error handling middleware declared last
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
