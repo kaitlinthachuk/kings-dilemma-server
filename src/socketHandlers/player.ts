@@ -12,7 +12,7 @@ export default (io: Server, socket: Socket) => {
   }
 
   const selectSecretAgenda = (house: string, secretAgendaName: string) => {
-    session.updateSecretAgenda(secretAgendaName, house)
+    session.updateSecretAgenda(house, secretAgendaName)
     io.emit('game:state', session.getState())
   }
 

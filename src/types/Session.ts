@@ -77,7 +77,9 @@ export class Session {
       return a.prestige - b.prestige
     })
     this.leader = players[players.length - 1].house
+    players[players.length - 1].isLeader = true
     this.moderator = players[0].house
+    players[0].isModerator = true
     this.turnOrder = players.map((player) => player.house)
     this.turn = this.moderator
   }
@@ -99,7 +101,7 @@ export class Session {
     })
   }
 
-  updateSecretAgenda(secretAgendaName: string, house: string) {
+  updateSecretAgenda(house: string, secretAgendaName: string) {
     const agendaIndex = this.secretAgendas.findIndex(
       (element) => element.name === secretAgendaName,
     )
