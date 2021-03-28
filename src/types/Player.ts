@@ -25,5 +25,7 @@ export class Player {
     this.houseNumber = (houseData as any)[house].houseNumber
     this.isLeader = false
     this.isModerator = false
+    this.prestige = (houseData as any)[house].prestige
+    this.crave = (houseData as any)[house].crave
   }
 }

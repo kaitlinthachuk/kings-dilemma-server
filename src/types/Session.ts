@@ -34,6 +34,7 @@ export class Session {
   voteTie: boolean
   winner: string
   leaderChoice: string[]
+  becomeModAvailable: boolean
 
   constructor() {
     this.players = {}
@@ -55,6 +56,7 @@ export class Session {
     this.voteTie = false
     this.winner = ''
     this.leaderChoice = []
+    this.becomeModAvailable = true
   }
 
   static getInstance(): Session {
@@ -86,7 +88,6 @@ export class Session {
 
   endGame() {
     this.state = State.gameOver
-    //have UI do coin and power sorting?
   }
 
   setOutcomes(ayeOutcomes: Outcome[], nayOutcomes: Outcome[]) {
@@ -127,6 +128,7 @@ export class Session {
     this.voteTie = false
     this.winner = ''
     this.leaderChoice = []
+    this.becomeModAvailable = true
   }
 
   updateVote(vote: Vote) {
@@ -138,6 +140,10 @@ export class Session {
 
     if (vote.type === 'mod') {
       this.updateModerator(vote.house)
+      this.becomeModAvailable = false
+      this.players[vote.house].coins += 1
+    } else if (vote.type === 'gather') {
+      this.players[vote.house].coins += 1
     }
 
     if (vote.power > this.maxPowerCommitted(this.votes)) {
@@ -170,6 +176,14 @@ export class Session {
     this.takePowerFromWinners(votes[winner])
   }
 
+  updateCrave(house: string, crave: number) {
+    this.players[house].crave = crave
+  }
+
+  updatePrestige(house: string, prestige: number) {
+    this.players[house].prestige = prestige
+  }
+
   private whoIsNext(house: string) {
     let index = this.turnOrder?.indexOf(house)
 
@@ -184,8 +198,10 @@ export class Session {
     if (nextHouse === this.leader) {
       this.state = State.voteOver
       this.processVoting()
+    } else if (this.votes[nextHouse].type === "gather" || this.votes[nextHouse].type === "mod") {
+      this.checkIfVotingEnd(nextHouse) //TODO check if this is the correct logic for skipping the turns of those who have voted to pass or become mod
     } else {
-      this.turn = house
+      this.turn = nextHouse
     }
   }
 

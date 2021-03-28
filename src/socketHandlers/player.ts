@@ -43,6 +43,16 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   }
 
+  const updateCrave = (house: string, crave: number) => {
+    session.updateCrave(house, crave)
+    io.emit('game:state', session.getState())
+  }
+
+  const updatePrestige = (house: string, prestige: number) => {
+    session.updatePrestige(house, prestige)
+    io.emit('game:state', session.getState())
+  }
+
   const gameOver = () => {
     session.endGame()
     io.emit('game:state', session.getState())
@@ -58,5 +68,7 @@ export default (io: Server, socket: Socket) => {
   socket.on('player:setAgendaTokens', setAgendaTokens)
   socket.on('player:breakTie', breakTie)
   socket.on('player:breakLeaderTie', breakLeaderTie)
+  socket.on('player:crave', updateCrave)
+  socket.on('player:prestige', updatePrestige)
   socket.on('player:gameOver', gameOver) // TODO should GM specific actions come from player?
 }
