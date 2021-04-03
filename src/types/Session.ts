@@ -41,7 +41,35 @@ export class Session {
     this.state = State.lobby
 
     // randomly remove 1 secret agenda
-    secretAgendasData.splice(Math.floor(Math.random() * secretAgendasData.length - 1), 1)
+    this.secretAgendas = [...secretAgendasData]
+    this.secretAgendas.splice(
+      Math.floor(Math.random() * secretAgendasData.length - 1),
+      1,
+    )
+    this.turn = ''
+    this.turnOrder = []
+    this.leader = ''
+    this.moderator = ''
+
+    this.votes = {}
+    this.availablePower = 3
+    this.ayeOutcomes = []
+    this.nayOutcomes = []
+    this.leaderTie = false
+    this.voteTie = false
+    this.winner = ''
+    this.leaderChoice = []
+  }
+
+  resetState() {
+    this.players = {}
+    this.state = State.lobby
+
+    // randomly remove 1 secret agenda
+    secretAgendasData.splice(
+      Math.floor(Math.random() * secretAgendasData.length - 1),
+      1,
+    )
     this.secretAgendas = secretAgendasData
     this.turn = ''
     this.turnOrder = []
@@ -64,6 +92,32 @@ export class Session {
       Session.instance = new Session()
     }
     return Session.instance
+  }
+
+  static resetInstance(): void {
+    Session.instance = new Session()
+  }
+
+  getState() {
+    const gameState = {
+      turn: this.turn,
+      leader: this.leader,
+      moderator: this.moderator,
+      state: this.state,
+      secretAgendas: this.secretAgendas,
+      players: this.players, //needed for agenda tokens and displaying the other houses in the UI
+      turnOrder: this.turnOrder, //needed by sidebar in UI
+      availablePower: this.availablePower,
+      votes: this.votes,
+      ayeOutcomes: this.ayeOutcomes,
+      nayOutcomes: this.nayOutcomes,
+      leaderTie: this.leaderTie,
+      leaderChoice: this.leaderChoice,
+      voteTie: this.voteTie,
+      winner: this.winner,
+    }
+    // console.log(gameState)
+    return gameState
   }
 
   addPlayer(house: string) {
@@ -108,7 +162,7 @@ export class Session {
     )
     const chosenAgenda = this.secretAgendas.splice(agendaIndex, 1)
     this.players[house].secretAgenda = chosenAgenda[0]
-    if (Object.values(this.players).every(player => player.secretAgenda)) {
+    if (Object.values(this.players).every((player) => player.secretAgenda)) {
       this.state = State.default
     } else {
       this.turn = this.whoIsNext(house)
@@ -332,27 +386,5 @@ export class Session {
     this.players[this.moderator].isModerator = false
     this.moderator = newModerator
     this.players[newModerator].isModerator = true
-  }
-
-  getState() {
-    const gameState = {
-      turn: this.turn,
-      leader: this.leader,
-      moderator: this.moderator,
-      state: this.state,
-      secretAgendas: this.secretAgendas,
-      players: this.players, //needed for agenda tokens and displaying the other houses in the UI
-      turnOrder: this.turnOrder, //needed by sidebar in UI
-      availablePower: this.availablePower,
-      votes: this.votes,
-      ayeOutcomes: this.ayeOutcomes,
-      nayOutcomes: this.nayOutcomes,
-      leaderTie: this.leaderTie,
-      leaderChoice: this.leaderChoice,
-      voteTie: this.voteTie,
-      winner: this.winner,
-    }
-    console.log(gameState)
-    return gameState
   }
 }
