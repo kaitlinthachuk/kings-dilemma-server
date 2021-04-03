@@ -1,18 +1,22 @@
-import { Server, Socket } from 'socket.io'
+import { Server, Socket as _Socket } from 'socket.io'
 import { Outcome } from '../types/Outcome'
 import { AgendaToken } from '../types/AgendaToken'
 import { Session } from '../types/Session'
 import { Vote } from '../types/Vote'
 const session = Session.getInstance()
 
+type Socket = _Socket & { house: string }
+
 export default (io: Server, socket: Socket) => {
   const selectHouse = (house: string) => {
+    console.log({house})
     session.addPlayer(house)
+    socket.house = house // add house to socket object
     io.emit('game:state', session.getState())
   }
 
-  const selectSecretAgenda = (house: string, secretAgendaName: string) => {
-    session.updateSecretAgenda(house, secretAgendaName)
+  const selectSecretAgenda = (secretAgendaName: string) => {
+    session.updateSecretAgenda(socket.house, secretAgendaName)
     io.emit('game:state', session.getState())
   }
 

@@ -1,13 +1,12 @@
-import { agent as request } from 'supertest'
 import { io, Socket } from 'socket.io-client'
 import initServer from '../src/server'
 import { Server as HTTPServer } from 'http'
-import { SessionManager } from '../src/types'
+import { Session } from '../src/types/Session'
 
 describe('Gameplay tests', () => {
   let server: HTTPServer
-  let sessionManager: SessionManager
-  let clients: Record<string, Socket[]>
+  let clients: Record<string, Socket>
+  let session = Session.getInstance()
 
   const createClient = (port: string): Promise<Socket> => {
     return new Promise((resolve, reject) => {
@@ -20,30 +19,55 @@ describe('Gameplay tests', () => {
     })
   }
 
+  const ackEmit = async (
+    socket: Socket,
+    event: string,
+    ...args: string[]
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      socket.on('game:state', () => resolve())
+      socket.emit(event, ...args)
+    })
+  }
+
   beforeAll(async (done) => {
     server = initServer()
-    const players = [
-      { house: 'Tork', name: 'Rhinehardt' },
-      { house: 'Solad', name: 'Stormcloak' },
-    ]
     server.listen(async () => {
+      const players = ['Tork', 'Solad', 'Crann', 'Coden', 'Tiryll']
       // @ts-ignore
       const port = server.address().port
-      clients = await (
-        await Promise.all(players.map(() => createClient(port)))
-      ).reduce((acc, curr) => {}, {})
-      console.log('clients: ', clients)
+      const sockets = await Promise.all(players.map(() => createClient(port)))
+      clients = Object.fromEntries(
+        players.map((_, i) => [players[i], sockets[i]]),
+      )
+
       done()
     })
   })
 
+  beforeEach(() => {
+    session.resetState()
+    session.addPlayer('tork')
+    session.addPlayer('solad')
+    session.addPlayer('crann')
+    session.addPlayer('coden')
+    session.addPlayer('tiryll')
+    session.startGame()
+    session.updateSecretAgenda(session.secretAgendas[0].name, 'tork')
+    session.updateSecretAgenda(session.secretAgendas[0].name, 'solad')
+    session.updateSecretAgenda(session.secretAgendas[0].name, 'crann')
+    session.updateSecretAgenda(session.secretAgendas[0].name, 'coden')
+    session.updateSecretAgenda(session.secretAgendas[0].name, 'tiryll')
+  })
+
   afterAll((done) => {
+    Object.values(clients).forEach((client) => client.close())
     server.close(done)
   })
 
-  it('test player 0 votes aye', () => {
-    console.log(clients)
-    clients[0].emit('player:vote')
+  fit('has all the players', () => {
+    expect(Object.keys(session.players)).toHaveLength(5)
+    expect(session.state).toBe('default')
   })
 
   it('basicTurnTest', () => {
