@@ -4,16 +4,9 @@ import secretAgendasData from '../data/secretAgendas.json'
 import { Outcome } from './Outcome'
 import { AgendaToken } from './AgendaToken'
 import { Vote } from './Vote'
+import { State } from './State'
 import * as utils from '../utils'
 
-enum State {
-  default = 'default',
-  secretAgenda = 'secretAgenda',
-  voting = 'voting',
-  voteOver = 'voteOver',
-  gameOver = 'gameOver',
-  lobby = 'lobby',
-}
 
 export class Session {
   private static instance: Session
@@ -36,41 +29,13 @@ export class Session {
   leaderChoice: string[]
   becomeModAvailable: boolean
 
-  constructor() {
+  private constructor() {
     this.players = {}
     this.state = State.lobby
 
     // randomly remove 1 secret agenda
-    this.secretAgendas = [...secretAgendasData]
-    this.secretAgendas.splice(
-      Math.floor(Math.random() * secretAgendasData.length - 1),
-      1,
-    )
-    this.turn = ''
-    this.turnOrder = []
-    this.leader = ''
-    this.moderator = ''
-
-    this.votes = {}
-    this.availablePower = 3
-    this.ayeOutcomes = []
-    this.nayOutcomes = []
-    this.leaderTie = false
-    this.voteTie = false
-    this.winner = ''
-    this.leaderChoice = []
-  }
-
-  resetState() {
-    this.players = {}
-    this.state = State.lobby
-
-    // randomly remove 1 secret agenda
-    secretAgendasData.splice(
-      Math.floor(Math.random() * secretAgendasData.length - 1),
-      1,
-    )
-    this.secretAgendas = secretAgendasData
+    const randIndex = Math.floor(Math.random() * secretAgendasData.length - 1)
+    this.secretAgendas = [...secretAgendasData.slice(0, randIndex), ...secretAgendasData.slice(randIndex + 1)]
     this.turn = ''
     this.turnOrder = []
     this.leader = ''
@@ -94,8 +59,27 @@ export class Session {
     return Session.instance
   }
 
-  static resetInstance(): void {
-    Session.instance = new Session()
+  resetInstance(): void {
+    this.players = {}
+    this.state = State.lobby
+
+    // randomly remove 1 secret agenda
+    const randIndex = Math.floor(Math.random() * secretAgendasData.length - 1)
+    this.secretAgendas = [...secretAgendasData.slice(0, randIndex), ...secretAgendasData.slice(randIndex + 1)]
+    this.turn = ''
+    this.turnOrder = []
+    this.leader = ''
+    this.moderator = ''
+
+    this.votes = {}
+    this.availablePower = 3
+    this.ayeOutcomes = []
+    this.nayOutcomes = []
+    this.leaderTie = false
+    this.voteTie = false
+    this.winner = ''
+    this.leaderChoice = []
+    this.becomeModAvailable = true
   }
 
   getState() {
@@ -186,12 +170,6 @@ export class Session {
   }
 
   updateVote(vote: Vote) {
-    if (this.votes[vote.house]) {
-      this.votes[vote.house].power += vote.power
-    } else {
-      this.votes[vote.house] = vote
-    }
-
     if (vote.type === 'mod') {
       this.updateModerator(vote.house)
       this.becomeModAvailable = false
@@ -202,9 +180,14 @@ export class Session {
 
     if (vote.power > this.maxPowerCommitted(this.votes)) {
       this.updateLeader(vote.house)
-    } else {
-      this.checkIfVotingEnd(vote.house)
     }
+    if (this.votes[vote.house]) {
+      this.votes[vote.house].power += vote.power
+    } else {
+      this.votes[vote.house] = vote
+    }
+
+    this.checkIfVotingEnd(vote.house)
   }
 
   breakTie(winner: string) {
@@ -213,7 +196,7 @@ export class Session {
     let winnerVotes = votes[this.winner]
     this.voteTie = false
 
-    if (this.checkForLeaderTie(winnerVotes)) {
+    if (winnerVotes.length !== 0 && this.checkForLeaderTie(winnerVotes)) {
       return
     }
     this.distributePower(votes['gather'])
@@ -227,7 +210,7 @@ export class Session {
     this.updateLeader(winner)
 
     this.distributePower(votes['gather'])
-    this.takePowerFromWinners(votes[winner])
+    this.takePowerFromWinners(votes[this.winner])
   }
 
   updateCrave(house: string, crave: number) {
@@ -252,7 +235,7 @@ export class Session {
     if (nextHouse === this.leader) {
       this.state = State.voteOver
       this.processVoting()
-    } else if (this.votes[nextHouse].type === "gather" || this.votes[nextHouse].type === "mod") {
+    } else if (this.votes[nextHouse] && (this.votes[nextHouse].type === "gather" || this.votes[nextHouse].type === "mod")) {
       this.checkIfVotingEnd(nextHouse) //TODO check if this is the correct logic for skipping the turns of those who have voted to pass or become mod
     } else {
       this.turn = nextHouse
@@ -278,10 +261,13 @@ export class Session {
       switch (this.votes[house].type) {
         case 'aye':
           ayeVotes.push(this.votes[house])
+          break
         case 'nay':
           nayVotes.push(this.votes[house])
+          break
         case 'gather':
           gatherVotes.push(this.votes[house])
+          break
         default:
           console.log('Became mod!')
       }
@@ -343,6 +329,8 @@ export class Session {
   private distributePower(votes: Vote[]) {
     if (votes.length === 0) {
       return
+    } else if (votes.length === 5) {
+      this.updateLeader(this.moderator)
     }
 
     let powerPer = Math.floor(this.availablePower / votes.length)

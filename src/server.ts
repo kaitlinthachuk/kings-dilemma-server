@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import registerPlayerHandlers from './socketHandlers/player'
 import registerGameHandlers from './socketHandlers/game'
 
-const initServer = (): HTTPServer => {
+const initServer = (): [HTTPServer, Server] => {
   const httpServer = http.createServer(app)
   const io = new Server(httpServer, {
     cors: {
@@ -14,12 +14,13 @@ const initServer = (): HTTPServer => {
   })
 
   io.on('connection', (socket: Socket) => {
+    socket = socket
     // @ts-ignore
     registerPlayerHandlers(io, socket)
     registerGameHandlers(io, socket)
   })
 
-  return httpServer
+  return [httpServer, io]
 }
 
 export default initServer
