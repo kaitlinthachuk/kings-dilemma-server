@@ -60,6 +60,15 @@ const playerTemplate = Handlebars.compile(`
   {{/each}}
 `)
 
+const messageBox = Handlebars.compile(`
+  <h2>Message box</h2>
+  <textarea onchange="updateMessage(this.value)">{{message}}</textarea>
+`)
+
+const updateMessage = (message) => {
+  socket.emit('game:setMessage', message)
+}
+
 // get game state on joining
 socket.emit('game:getState')
 socket.on(
@@ -79,6 +88,7 @@ socket.on(
     leaderChoice,
     voteTie,
     winner,
+    message,
   }) => {
     const compiled = [
       playerSelectTemplate({ title: 'Turn', value: turn }),
@@ -87,6 +97,7 @@ socket.on(
       selectStateTemplate(state),
       numberTemplate({title: 'Available Power', value: availablePower}),
       playerTemplate(Object.values(players)),
+      messageBox({message})
     ]
     root.innerHTML = compiled.map(html => `<div>${html}</div>`).join('')
   },

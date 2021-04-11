@@ -28,6 +28,7 @@ export class Session {
   winner: string
   leaderChoice: string[]
   becomeModAvailable: boolean
+  message: string
 
   private constructor() {
     this.players = {}
@@ -50,6 +51,7 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
+    this.message = "Hello World"
   }
 
   static getInstance(): Session {
@@ -80,6 +82,7 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
+    this.message = "Hello World"
   }
 
   getState() {
@@ -99,13 +102,16 @@ export class Session {
       leaderChoice: this.leaderChoice,
       voteTie: this.voteTie,
       winner: this.winner,
+      message: this.message,
     }
     // console.log(gameState)
     return gameState
   }
 
   addPlayer(house: string) {
-    this.players[house] = new Player(house)
+    if (!this.players[house]) {
+      this.players[house] = new Player(house)
+    }
   }
 
   startGame() {
