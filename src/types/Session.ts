@@ -30,6 +30,8 @@ export class Session {
   becomeModAvailable: boolean
   votingCardUrl: string
   chronicleStickersUrl: string
+  message: string
+
   private constructor() {
     this.players = {}
     this.state = State.lobby
@@ -53,6 +55,7 @@ export class Session {
     this.becomeModAvailable = true
     this.votingCardUrl = ""
     this.chronicleStickersUrl = ""
+    this.message = "Hello World"
   }
 
   static getInstance(): Session {
@@ -83,6 +86,7 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
+    this.message = "Hello World"
   }
 
   getState() {
@@ -102,13 +106,16 @@ export class Session {
       leaderChoice: this.leaderChoice,
       voteTie: this.voteTie,
       winner: this.winner,
+      message: this.message,
     }
     // console.log(gameState)
     return gameState
   }
 
   addPlayer(house: string) {
-    this.players[house] = new Player(house)
+    if (!this.players[house]) {
+      this.players[house] = new Player(house)
+    }
   }
 
   startGame() {

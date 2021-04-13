@@ -11,4 +11,9 @@ export default (io: Server, socket: Socket) => {
     session.startGame()
     io.emit('game:state', session.getState())
   })
+
+  socket.on('game:setMessage', (message) => {
+    session.message = message
+    io.emit('game:state', session.getState())
+  })
 }
