@@ -20,12 +20,10 @@ export class Player {
     this.power = 8
     this.agendaTokens = []
     this.secretAgenda = null
-    this.prestige = 0
-    this.crave = 0
+    this.prestige = NaN
+    this.crave = NaN
     this.houseNumber = (houseData as any)[house].houseNumber
     this.isLeader = false
     this.isModerator = false
-    this.prestige = (houseData as any)[house].prestige
-    this.crave = (houseData as any)[house].crave
   }
 }

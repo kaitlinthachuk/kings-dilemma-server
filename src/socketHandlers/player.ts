@@ -9,7 +9,7 @@ type Socket = _Socket & { house: string }
 
 export default (io: Server, socket: Socket) => {
   const selectHouse = (house: string) => {
-    console.log({house})
+    console.log({ house })
     session.addPlayer(house)
     socket.house = house // add house to socket object
     io.emit('game:state', session.getState())
@@ -47,13 +47,13 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   }
 
-  const updateCrave = (house: string, crave: number) => {
-    session.updateCrave(house, crave)
+  const updateCrave = (crave: number) => {
+    session.updateCrave(socket.house, crave)
     io.emit('game:state', session.getState())
   }
 
-  const updatePrestige = (house: string, prestige: number) => {
-    session.updatePrestige(house, prestige)
+  const updatePrestige = (prestige: number) => {
+    session.updatePrestige(socket.house, prestige)
     io.emit('game:state', session.getState())
   }
 
