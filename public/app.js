@@ -3,13 +3,13 @@ const root = document.getElementById('root')
 
 // templates
 const numberTemplate = Handlebars.compile(`
-  <label for="{{title}}">{{title}}</label>
+  <h2>{{title}}</h2>
   <input name="{{title}}" type="number" value={{value}} />
 `)
 
 const playerSelectTemplate = Handlebars.compile(`
+  <h2>{{title}}</h2>
   <p>Current value: {{value}}</p>
-  <label for="{{title}}">{{title}}</label>
   <select name="{{title}}">
     <option>tork</option>
     <option>solad</option>
@@ -20,6 +20,7 @@ const playerSelectTemplate = Handlebars.compile(`
 `)
 
 const selectStateTemplate = Handlebars.compile(`
+  <h2>{{title}}</h2>
   <p>Current value: {{this}}</p>
   <select name="game-state">
     <option>default</option>
@@ -32,8 +33,9 @@ const selectStateTemplate = Handlebars.compile(`
 `)
 
 const playerTemplate = Handlebars.compile(`
+  <h2>Players</h2>
   {{#each this}}
-    <h2>{{house}}</h2>
+    <h3>{{house}}</h3>
     <form>
       <label for="coins">Coins</label>
       <input name="coins" type="number" value={{coins}} />
@@ -94,11 +96,11 @@ socket.on(
       playerSelectTemplate({ title: 'Turn', value: turn }),
       playerSelectTemplate({ title: 'Leader', value: leader}),
       playerSelectTemplate({ title: 'Moderator', value: moderator}),
-      selectStateTemplate(state),
+      selectStateTemplate({ title: 'State', value: state}),
       numberTemplate({title: 'Available Power', value: availablePower}),
       playerTemplate(Object.values(players)),
       messageBox({message})
     ]
-    root.innerHTML = compiled.map(html => `<div>${html}</div>`).join('')
+    root.innerHTML = compiled.map(html => `<div class="card">${html}</div>`).join('')
   },
 )
