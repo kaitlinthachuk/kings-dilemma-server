@@ -164,9 +164,12 @@ export class Session {
   }
 
   removeAgendaToken(house: string, token: AgendaToken) {
+    console.log(token)
     this.players[house].agendaTokens = this.players[house].agendaTokens.filter(
       (agenda) => {
-        return agenda.type !== token.type && agenda.resource !== token.resource
+        return !(
+          agenda.type === token.type && agenda.resource === token.resource
+        )
       },
     )
   }
