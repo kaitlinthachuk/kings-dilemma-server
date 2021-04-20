@@ -1,80 +1,100 @@
 const socket = io()
 const root = document.getElementById('root')
 
+// helpers
+// https://stackoverflow.com/a/15373215
+Handlebars.registerHelper('select', (value, options) => {
+  console.log({ value })
+  const selectElem = document.createElement('select')
+  selectElem.innerHTML = options.fn(this)
+  selectElem.value = value
+  console.log(selectElem.children)
+  selectElem.children[selectElem.selectedIndex].setAttribute('selected', '')
+  return selectElem.innerHTML
+})
+
 // templates
 const numberTemplate = Handlebars.compile(`
   <h2>{{title}}: {{value}}</h2>
   <input name="{{title}}" type="number" value={{value}} onChange="{{onChange}}(this.value)"/>
 `)
+
 const booleanTemplate = Handlebars.compile(`
   <h2>{{title}}: {{value}}</h2>
-  <select name="{{title}}" onChange="{{onChange}}(this.value)">
-    <option>Select</option>
-    <option>true</option>
-    <option>false</option>
-  </select>
+  <input type="checkbox" onChange="{{onChange}}(this.checked)" {{#if value}}checked{{/if}}>
 `)
 
 const winnerTemplate = Handlebars.compile(`
   <h2>{{title}}: {{value}}</h2>
   <select name="{{title}}" onChange="{{onChange}}(this.value)">
-    <option>Select</option>
-    <option>Aye</option>
-    <option>Nay</option>
+    {{#select value}}
+    <option value="">-</option>
+    <option>aye</option>
+    <option>nay</option>
+    {{/select}}
   </select>
 `)
 
 const playerSelectTemplate = Handlebars.compile(`
   <h2>{{title}}: {{value}}</h2>
   <select name="{{title}}" onChange="{{onChange}}(this.value)">
-    <option>Select</option>
+    {{#select value}}
+    <option value="">-</option>
     <option>tork</option>
     <option>solad</option>
     <option>tiryll</option>
     <option>crann</option>
     <option>coden</option>
+    {{/select}}
   </select>
 `)
 
 const selectStateTemplate = Handlebars.compile(`
   <h2>{{title}}: {{value}}</h2>
-  <select name="game-state" onChange="{{onChange}}{this.value)">
+  <select name="game-state" onChange="{{onChange}}(this.value)">
+    {{#select value}}
     <option>default</option>
     <option>secretAgenda</option>
     <option>voting</option>
     <option>voteOver</option>
     <option>gameOver</option>
     <option>lobby</option>
+    {{/select}}
   </select>
 `)
 
 const playerTemplate = Handlebars.compile(`
   <h2>Players</h2>
   {{#each this}}
-    <h3>{{house}}</h3>
+    <div id="{{house}}">
+      <h3>{{house}}</h3>
       <label for="coins">Coins</label>
       <input name="coins" type="number" value={{coins}} />
       <label for="power">Power</label>
       <input name="power" type="number" value={{power}} />
-      <label for="agendaTokens">Agenda Tokens</label>
       <ul>
         {{#each agendaTokens}}
-          <li>type: {{type}}, resource: {{resource}}</li>
-          <button onClick="deleteAgendaToken({{house}},{{type}},{{resource}})">-</button>
+          <li>
+            <span>type: {{type}}, resource: {{resource}}</span>
+            <button onClick="removeAgendaToken('{{../house}}', '{{type}}', '{{resource}}')">-</button>
+          </li>
         {{/each}}
       </ul>
-      <form onSubmit=addAgendaToken()>
-      <input name="pos-neg" type="radio" checked>pos</input>
-      <input mame="pos-neg" type="radio">neg</input>
-      <select name="resource">
-        <option>Influence</option>
-        <option>Wealth</option>
-        <option>Morale</option>
-        <option>Welfare</option>
-        <option>Knowledge</option>
-      </select>
-      <button>+</button>
-    </form>
+      <form onsubmit="addAgendaToken('{{house}}'); return false">
+        <input id="{{house}}-pos" name="posneg" value="pos" type="radio" checked>
+        <label for="{{house}}-pos">pos</label>
+        <input id="{{house}}-neg" name="posneg" value="neg" type="radio">
+        <label for="{{house}}-neg">neg</label>
+        <select name="resource">
+          <option>Influence</option>
+          <option>Wealth</option>
+          <option>Morale</option>
+          <option>Welfare</option>
+          <option>Knowledge</option>
+        </select>
+        <input type="submit" value="+">
+      </form>
+    </div>
   {{/each}}
 `)
 
@@ -83,31 +103,7 @@ const messageBox = Handlebars.compile(`
   <textarea onchange="updateMessage(this.value)">{{message}}</textarea>
 `)
 
-let tempAgendaTokens = {
-  "tork": { "type": "", "resource": "" },
-  "solad": { "type": "", "resource": "" },
-  "coden": { "type": "", "resource": "" },
-  "crann": { "type": "", "resource": "" },
-  "tiryll": { "type": "", "resource": "" }
-}
-
-const agendaRadioOnChange = (house, value) => {
-  console.log(house, value);
-  tempAgendaTokens[house].type = value
-}
-const selectAgendaResourceOnChange = (house, value) => {
-  console.log(house, value);
-  tempAgendaTokens[house].resource = value
-}
-const addAgendaToken = (house) => {
-  console.log(house)
-  socket.emit('game:setAgendaToken', house, tempAgendaTokens[house])
-  tempAgendaTokens[house] = { "type": "", "resource": "" }
-}
-const deleteAgendaToken = (house, type, resource) => {
-  socket.emit('game:removeAgendaToken', house, { "type": type, "resource": resource })
-}
-
+// handlers
 const updateMessage = (message) => {
   socket.emit('game:setMessage', message)
 }
@@ -127,16 +123,28 @@ const updateAvailablePower = (power) => {
   socket.emit('game:setAvailablePower', power)
 }
 const updateLeaderTie = (leaderTie) => {
-  socket.emit('game:setLeaderTie', leaderTie === 'true')
+  socket.emit('game:setLeaderTie', leaderTie)
 }
 const updateVoteTie = (voteTie) => {
-  socket.emit('game:setVoteTie', voteTie === 'true')
+  socket.emit('game:setVoteTie', voteTie)
 }
 const updateBecomeMod = (becomeModAvailable) => {
-  socket.emit('game:setBecomeMod', becomeModAvailable === 'true')
+  console.log(becomeModAvailable)
+  socket.emit('game:setBecomeMod', becomeModAvailable)
 }
 const updateWinner = (winner) => {
   socket.emit('game:setWinner', winner)
+}
+const addAgendaToken = (player) => {
+  const formElem = document.querySelector(`#${player} > form`)
+  const formData = new FormData(formElem)
+  socket.emit('game:setAgendaToken', player, {
+    type: formData.get('posneg'),
+    resource: formData.get('resource'),
+  })
+}
+const removeAgendaToken = (player, type, resource) => {
+  socket.emit('game:removeAgendaToken', player, { type, resource })
 }
 
 // get game state on joining
@@ -161,20 +169,53 @@ socket.on(
     winner,
     message,
   }) => {
-    console.log(state)
     const compiled = [
-      playerSelectTemplate({ title: 'Turn', value: turn, onChange: 'updateTurn' }),
-      playerSelectTemplate({ title: 'Leader', value: leader, onChange: 'updateLeader' }),
-      playerSelectTemplate({ title: 'Moderator', value: moderator, onChange: 'updateModerator' }),
-      booleanTemplate({ title: "Become Moderator Available", value: becomeModAvailable, onChange: 'updateBecomeMod' }),
+      playerSelectTemplate({
+        title: 'Turn',
+        value: turn,
+        onChange: 'updateTurn',
+      }),
+      playerSelectTemplate({
+        title: 'Leader',
+        value: leader,
+        onChange: 'updateLeader',
+      }),
+      playerSelectTemplate({
+        title: 'Moderator',
+        value: moderator,
+        onChange: 'updateModerator',
+      }),
+      booleanTemplate({
+        title: 'Become Moderator Available',
+        value: becomeModAvailable,
+        onChange: 'updateBecomeMod',
+      }),
       selectStateTemplate({ title: 'State', value: state }),
-      numberTemplate({ title: 'Available Power', value: availablePower, onChange: 'updateAvailablePower' }),
+      numberTemplate({
+        title: 'Available Power',
+        value: availablePower,
+        onChange: 'updateAvailablePower',
+      }),
       playerTemplate(Object.values(players)),
       messageBox({ message }),
-      booleanTemplate({ title: 'Vote Tie', value: voteTie, onChange: 'updateVoteTie' }),
-      booleanTemplate({ title: 'Leader Tie', value: leaderTie, onChange: 'updateLeaderTie' }),
-      winnerTemplate({ title: "Winner", value: winner, onChange: 'updateWinner' })
+      booleanTemplate({
+        title: 'Vote Tie',
+        value: voteTie,
+        onChange: 'updateVoteTie',
+      }),
+      booleanTemplate({
+        title: 'Leader Tie',
+        value: leaderTie,
+        onChange: 'updateLeaderTie',
+      }),
+      winnerTemplate({
+        title: 'Winner',
+        value: winner,
+        onChange: 'updateWinner',
+      }),
     ]
-    root.innerHTML = compiled.map(html => `<div class="card">${html}</div>`).join('')
+    root.innerHTML = compiled
+      .map((html) => `<div class="card">${html}</div>`)
+      .join('')
   },
 )

@@ -7,7 +7,6 @@ import { Vote } from './Vote'
 import { State } from './State'
 import * as utils from '../utils'
 
-
 export class Session {
   private static instance: Session
 
@@ -38,7 +37,10 @@ export class Session {
 
     // randomly remove 1 secret agenda
     const randIndex = Math.floor(Math.random() * secretAgendasData.length - 1)
-    this.secretAgendas = [...secretAgendasData.slice(0, randIndex), ...secretAgendasData.slice(randIndex + 1)]
+    this.secretAgendas = [
+      ...secretAgendasData.slice(0, randIndex),
+      ...secretAgendasData.slice(randIndex + 1),
+    ]
     this.turn = ''
     this.turnOrder = []
     this.leader = ''
@@ -53,9 +55,9 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
-    this.votingCardUrl = ""
-    this.chronicleStickersUrl = ""
-    this.message = "Hello World"
+    this.votingCardUrl = ''
+    this.chronicleStickersUrl = ''
+    this.message = 'Hello World'
   }
 
   static getInstance(): Session {
@@ -71,7 +73,10 @@ export class Session {
 
     // randomly remove 1 secret agenda
     const randIndex = Math.floor(Math.random() * secretAgendasData.length - 1)
-    this.secretAgendas = [...secretAgendasData.slice(0, randIndex), ...secretAgendasData.slice(randIndex + 1)]
+    this.secretAgendas = [
+      ...secretAgendasData.slice(0, randIndex),
+      ...secretAgendasData.slice(randIndex + 1),
+    ]
     this.turn = ''
     this.turnOrder = []
     this.leader = ''
@@ -86,7 +91,7 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
-    this.message = "Hello World"
+    this.message = 'Hello World'
   }
 
   getState() {
@@ -108,7 +113,7 @@ export class Session {
       winner: this.winner,
       message: this.message,
       chronicleStickersUrl: this.chronicleStickersUrl,
-      becomeModAvailable: this.becomeModAvailable
+      becomeModAvailable: this.becomeModAvailable,
     }
     // console.log(gameState)
     return gameState
@@ -159,9 +164,11 @@ export class Session {
   }
 
   removeAgendaToken(house: string, token: AgendaToken) {
-    this.players[house].agendaTokens = this.players[house].agendaTokens.filter((agenda) => {
-      return agenda.type !== token.type && agenda.resource !== token.resource
-    })
+    this.players[house].agendaTokens = this.players[house].agendaTokens.filter(
+      (agenda) => {
+        return agenda.type !== token.type && agenda.resource !== token.resource
+      },
+    )
   }
 
   updateSecretAgenda(house: string, secretAgendaName: string) {
@@ -259,7 +266,11 @@ export class Session {
     if (nextHouse === this.leader) {
       this.state = State.voteOver
       this.processVoting()
-    } else if (this.votes[nextHouse] && (this.votes[nextHouse].type === "gather" || this.votes[nextHouse].type === "mod")) {
+    } else if (
+      this.votes[nextHouse] &&
+      (this.votes[nextHouse].type === 'gather' ||
+        this.votes[nextHouse].type === 'mod')
+    ) {
       this.checkIfVotingEnd(nextHouse) //TODO check if this is the correct logic for skipping the turns of those who have voted to pass or become mod
     } else {
       this.turn = nextHouse
