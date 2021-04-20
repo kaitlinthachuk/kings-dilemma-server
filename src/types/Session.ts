@@ -107,6 +107,8 @@ export class Session {
       voteTie: this.voteTie,
       winner: this.winner,
       message: this.message,
+      chronicleStickersUrl: this.chronicleStickersUrl,
+      becomeModAvailable: this.becomeModAvailable
     }
     // console.log(gameState)
     return gameState
@@ -152,9 +154,13 @@ export class Session {
     this.startVoting()
   }
 
-  setAgendaTokens(assignents: { house: string; tokens: AgendaToken[] }[]) {
-    assignents.forEach((val) => {
-      this.players[val.house].agendaTokens = val.tokens
+  setAgendaToken(house: string, token: AgendaToken) {
+    this.players[house].agendaTokens.push(token)
+  }
+
+  removeAgendaToken(house: string, token: AgendaToken) {
+    this.players[house].agendaTokens = this.players[house].agendaTokens.filter((agenda) => {
+      return agenda.type !== token.type && agenda.resource !== token.resource
     })
   }
 
