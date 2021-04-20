@@ -5,6 +5,6 @@ Server for King's Dilemma
 ## How to run
 
 ```
-$ yarn
-$ yarn dev
+$ npm install
+$ npm run dev
 ```
