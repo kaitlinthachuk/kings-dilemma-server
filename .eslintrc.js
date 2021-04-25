@@ -13,5 +13,5 @@ module.exports = {
     'no-var': 'error',
     'dot-notation': 'error',
     'prefer-const': 'error',
-  }
+  },
 }

@@ -153,10 +153,24 @@ export class Session {
     this.chronicleStickersUrl = url
   }
 
-  setOutcomes(ayeOutcomes: Outcome[], nayOutcomes: Outcome[]) {
-    this.ayeOutcomes = ayeOutcomes
-    this.nayOutcomes = nayOutcomes
-    this.startVoting()
+  addOutcome(outcome: Outcome) {
+    if (outcome.type === 'pos') {
+      this.ayeOutcomes.push(outcome)
+    } else {
+      this.nayOutcomes.push(outcome)
+    }
+  }
+
+  removeOutcome(outcome: Outcome) {
+    if (outcome.type === 'pos') {
+      this.ayeOutcomes = this.ayeOutcomes.filter((el) => {
+        return el.resource !== outcome.resource
+      })
+    } else {
+      this.nayOutcomes = this.nayOutcomes.filter((el) => {
+        return el.resource !== outcome.resource
+      })
+    }
   }
 
   setAgendaToken(house: string, token: AgendaToken) {

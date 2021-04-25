@@ -25,11 +25,6 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   }
 
-  const setOutcomes = (ayeOutcomes: Outcome[], nayOutcomes: Outcome[]) => {
-    session.setOutcomes(ayeOutcomes, nayOutcomes)
-    io.emit('game:state', session.getState())
-  }
-
   const breakTie = (winner: string) => {
     session.breakTie(winner)
     io.emit('game:state', session.getState())
@@ -61,7 +56,6 @@ export default (io: Server, socket: Socket) => {
   socket.on('player:selectHouse', selectHouse)
   socket.on('player:selectSecretAgenda', selectSecretAgenda)
   socket.on('player:vote', vote)
-  socket.on('player:setOutcomes', setOutcomes)
   socket.on('player:breakTie', breakTie)
   socket.on('player:breakLeaderTie', breakLeaderTie)
   socket.on('player:crave', updateCrave)

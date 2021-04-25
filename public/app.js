@@ -4,11 +4,9 @@ const root = document.getElementById('root')
 // helpers
 // https://stackoverflow.com/a/15373215
 Handlebars.registerHelper('select', (value, options) => {
-  console.log({ value })
   const selectElem = document.createElement('select')
   selectElem.innerHTML = options.fn(this)
   selectElem.value = value
-  console.log(selectElem.children)
   selectElem.children[selectElem.selectedIndex].setAttribute('selected', '')
   return selectElem.innerHTML
 })
@@ -62,6 +60,39 @@ const selectStateTemplate = Handlebars.compile(`
     {{/select}}
   </select>
 `)
+const votingOutcomeTemplate = Handlebars.compile(`
+<h2>Voting Outcomes</h2>
+  <ul>
+  {{#each ayeOutcomes }}
+    <li>
+      <span>type: {{type}}, resource: {{resource}}</span>
+      <button onClick="removeVotingOutcome('{{type}}', '{{resource}}')">-</button>
+    </li>
+  {{/each}}
+  </ul>
+  <ul>
+  {{#each nayOutcomes }}
+  <li>
+    <span>type: {{type}}, resource: {{resource}}</span>
+    <button onClick="removeVotingOutcome('{{type}}', '{{resource}}')">-</button>
+  </li>
+  {{/each}}
+  </ul>
+    <form id="votingOutcomes" onsubmit="addVotingOutcome();return false">
+      <input id="voting-pos" name="posneg" value="pos" type="radio" checked>
+      <label for="voting-pos">pos</label>
+      <input id="voting-neg" name="posneg" value="neg" type="radio">
+      <label for="voting-neg">neg</label>
+      <select name="resource">
+        <option>Influence</option>
+        <option>Wealth</option>
+        <option>Morale</option>
+        <option>Welfare</option>
+        <option>Knowledge</option>
+      </select>
+      <input type="submit" value="+">
+    </form>
+`)
 
 const playerTemplate = Handlebars.compile(`
   <h2>Players</h2>
@@ -103,6 +134,10 @@ const messageBox = Handlebars.compile(`
   <textarea onchange="updateMessage(this.value)">{{message}}</textarea>
 `)
 
+const buttonTemplate = Handlebars.compile(`
+  <button onClick="{{onClick}}()">{{title}}</button>
+`)
+
 // handlers
 const updateMessage = (message) => {
   socket.emit('game:setMessage', message)
@@ -129,7 +164,6 @@ const updateVoteTie = (voteTie) => {
   socket.emit('game:setVoteTie', voteTie)
 }
 const updateBecomeMod = (becomeModAvailable) => {
-  console.log(becomeModAvailable)
   socket.emit('game:setBecomeMod', becomeModAvailable)
 }
 const updateWinner = (winner) => {
@@ -146,7 +180,20 @@ const addAgendaToken = (player) => {
 const removeAgendaToken = (player, type, resource) => {
   socket.emit('game:removeAgendaToken', player, { type, resource })
 }
-
+const addVotingOutcome = () => {
+  const formElem = document.querySelector(`#votingOutcomes`)
+  const formData = new FormData(formElem)
+  socket.emit('game:addOutcome', {
+    type: formData.get('posneg'),
+    resource: formData.get('resource'),
+  })
+}
+const removeVotingOutcome = (type, resource) => {
+  socket.emit('game:removeOutcome', { type, resource })
+}
+const startVoting = () => {
+  socket.emit('game:startVoting')
+}
 // get game state on joining
 socket.emit('game:getState')
 socket.on(
@@ -198,6 +245,11 @@ socket.on(
       }),
       playerTemplate(Object.values(players)),
       messageBox({ message }),
+      votingOutcomeTemplate({
+        ayeOutcomes: ayeOutcomes,
+        nayOutcomes: nayOutcomes,
+      }),
+      buttonTemplate({ title: 'Start Voting', onClick: 'startVoting' }),
       booleanTemplate({
         title: 'Vote Tie',
         value: voteTie,

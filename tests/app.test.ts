@@ -33,7 +33,7 @@ describe('Gameplay tests', () => {
   }
 
   beforeAll(async (done) => {
-    [httpServer, serverSocket] = initServer()
+    ;[httpServer, serverSocket] = initServer()
     httpServer.listen(async () => {
       const players = ['tork', 'solad', 'crann', 'coden', 'tiryll']
       // @ts-ignore
@@ -76,9 +76,9 @@ describe('Gameplay tests', () => {
   it('should check state is correct after first vote', async () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.state = State.voting
-    const vote = { house: 'solad', type: "aye", power: 4 }
+    const vote = { house: 'solad', type: 'aye', power: 4 }
 
-    await ackEmit(clients.solad, "player:vote", vote)
+    await ackEmit(clients.solad, 'player:vote', vote)
 
     expect(session.votes['solad']).toEqual(vote)
     expect(session.turn).toBe('tork')
@@ -95,21 +95,44 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "aye", power: 4 })
-    await ackEmit(clients.tork, "player:vote", { house: 'tork', type: "aye", power: 1 })
-    await ackEmit(clients.crann, "player:vote", { house: 'crann', type: "aye", power: 1 })
-    await ackEmit(clients.tiryll, "player:vote", { house: 'tiryll', type: "aye", power: 1 })
-    await ackEmit(clients.coden, "player:vote", { house: 'coden', type: "aye", power: 1 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'aye',
+      power: 4,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'aye',
+      power: 1,
+    })
 
     expect(session.leader).toBe('solad')
     expect(session.moderator).toBe('crann')
     expect(session.state).toBe(State.voteOver)
     expect(session.availablePower).toBe(8)
     expect(session.winner).toBe('aye')
-    expect(session.votes.crann).toEqual({ house: 'crann', type: "aye", power: 1 })
+    expect(session.votes.crann).toEqual({
+      house: 'crann',
+      type: 'aye',
+      power: 1,
+    })
     expect(session.turn).toBe('coden')
     expect(session.players.solad.power).toBe(4)
-
   })
 
   it('does a vote round where everybody passes but one', async () => {
@@ -120,21 +143,44 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "gather", power: 0 })
-    await ackEmit(clients.tork, "player:vote", { house: 'tork', type: "gather", power: 0 })
-    await ackEmit(clients.crann, "player:vote", { house: 'crann', type: "gather", power: 0 })
-    await ackEmit(clients.tiryll, "player:vote", { house: 'tiryll', type: "gather", power: 0 })
-    await ackEmit(clients.coden, "player:vote", { house: 'coden', type: "aye", power: 1 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'aye',
+      power: 1,
+    })
 
     expect(session.leader).toBe('coden')
     expect(session.moderator).toBe('crann')
     expect(session.state).toBe(State.voteOver)
     expect(session.winner).toBe('aye')
-    expect(session.votes.crann).toEqual({ house: 'crann', type: "gather", power: 0 })
+    expect(session.votes.crann).toEqual({
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
     expect(session.turn).toBe('coden')
     expect(session.players.solad.power).toBe(9)
     expect(session.availablePower).toBe(3)
-
   })
 
   it('does a vote round where everybody passes, mod breaks tie and becomes leader', async () => {
@@ -145,17 +191,37 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "gather", power: 0 })
-    await ackEmit(clients.tork, "player:vote", { house: 'tork', type: "gather", power: 0 })
-    await ackEmit(clients.crann, "player:vote", { house: 'crann', type: "gather", power: 0 })
-    await ackEmit(clients.tiryll, "player:vote", { house: 'tiryll', type: "gather", power: 0 })
-    await ackEmit(clients.coden, "player:vote", { house: 'coden', type: "gather", power: 0 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'gather',
+      power: 0,
+    })
 
     expect(session.voteTie).toBe(true)
-    expect(session.winner).toBe("")
-    await ackEmit(clients.crann, "player:breakTie", "aye")
+    expect(session.winner).toBe('')
+    await ackEmit(clients.crann, 'player:breakTie', 'aye')
 
-    expect(session.winner).toBe("aye")
+    expect(session.winner).toBe('aye')
     expect(session.leader).toBe('crann')
     expect(session.moderator).toBe('crann')
     expect(session.availablePower).toBe(1)
@@ -170,17 +236,37 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "aye", power: 3 })
-    await ackEmit(clients.tork, "player:vote", { house: 'tork', type: "aye", power: 1 })
-    await ackEmit(clients.crann, "player:vote", { house: 'crann', type: "gather", power: 0 })
-    await ackEmit(clients.tiryll, "player:vote", { house: 'tiryll', type: "nay", power: 3 })
-    await ackEmit(clients.coden, "player:vote", { house: 'coden', type: "nay", power: 1 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'aye',
+      power: 3,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'nay',
+      power: 3,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'nay',
+      power: 1,
+    })
 
     expect(session.voteTie).toBe(true)
-    expect(session.winner).toBe("")
-    await ackEmit(clients.crann, "player:breakTie", "aye")
+    expect(session.winner).toBe('')
+    await ackEmit(clients.crann, 'player:breakTie', 'aye')
 
-    expect(session.winner).toBe("aye")
+    expect(session.winner).toBe('aye')
     expect(session.leader).toBe('solad')
     expect(session.moderator).toBe('crann')
     expect(session.availablePower).toBe(4)
@@ -198,14 +284,18 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
     session.votes = {
-      'tork': { house: 'tork', type: "gather", power: 0 },
-      'crann': { house: 'crann', type: "gather", power: 0 },
-      'tiryll': { house: 'tiryll', type: "gather", power: 0 }
+      tork: { house: 'tork', type: 'gather', power: 0 },
+      crann: { house: 'crann', type: 'gather', power: 0 },
+      tiryll: { house: 'tiryll', type: 'gather', power: 0 },
     }
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "aye", power: 3 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'aye',
+      power: 3,
+    })
 
-    expect(session.winner).toBe("")
+    expect(session.winner).toBe('')
     expect(session.leader).toBe('solad')
     expect(session.moderator).toBe('crann')
     expect(session.availablePower).toBe(6)
@@ -221,15 +311,19 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
     session.votes = {
-      'tork': { house: 'tork', type: "gather", power: 0 },
-      'crann': { house: 'crann', type: "gather", power: 0 },
-      'tiryll': { house: 'tiryll', type: "gather", power: 0 },
-      'coden': { house: 'coden', type: "gather", power: 0 }
+      tork: { house: 'tork', type: 'gather', power: 0 },
+      crann: { house: 'crann', type: 'gather', power: 0 },
+      tiryll: { house: 'tiryll', type: 'gather', power: 0 },
+      coden: { house: 'coden', type: 'gather', power: 0 },
     }
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "aye", power: 3 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'aye',
+      power: 3,
+    })
 
-    expect(session.winner).toBe("aye")
+    expect(session.winner).toBe('aye')
     expect(session.leader).toBe('solad')
     expect(session.moderator).toBe('crann')
     expect(session.availablePower).toBe(5)
@@ -237,7 +331,6 @@ describe('Gameplay tests', () => {
     expect(session.players.solad.power).toBe(5)
     expect(session.players.tork.power).toBe(9)
   })
-
 
   it('should resolve all the ties', async () => {
     session.availablePower = 3
@@ -247,24 +340,46 @@ describe('Gameplay tests', () => {
     session.turnOrder = ['solad', 'tork', 'crann', 'tiryll', 'coden']
     session.turn = 'solad'
 
-    await ackEmit(clients.solad, "player:vote", { house: 'solad', type: "aye", power: 3 })
-    await ackEmit(clients.tork, "player:vote", { house: 'tork', type: "aye", power: 3 })
-    await ackEmit(clients.crann, "player:vote", { house: 'crann', type: "gather", power: 0 })
-    await ackEmit(clients.tiryll, "player:vote", { house: 'tiryll', type: "nay", power: 3 })
-    await ackEmit(clients.coden, "player:vote", { house: 'coden', type: "nay", power: 3 })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'aye',
+      power: 3,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'aye',
+      power: 3,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'nay',
+      power: 3,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'nay',
+      power: 3,
+    })
 
-    expect(session.winner).toBe("")
+    expect(session.winner).toBe('')
     expect(session.voteTie).toBe(true)
 
-    await ackEmit(clients.crann, "player:breakTie", "nay")
+    await ackEmit(clients.crann, 'player:breakTie', 'nay')
 
-    expect(session.winner).toBe("nay")
+    expect(session.winner).toBe('nay')
     expect(session.voteTie).toBe(false)
     expect(session.leaderTie).toBe(true)
-    expect(session.leaderChoice).toEqual(expect.arrayContaining(['coden', 'tiryll']))
+    expect(session.leaderChoice).toEqual(
+      expect.arrayContaining(['coden', 'tiryll']),
+    )
     expect(session.leaderChoice).toHaveLength(2)
 
-    await ackEmit(clients.crann, "player:breakLeaderTie", "coden")
+    await ackEmit(clients.crann, 'player:breakLeaderTie', 'coden')
 
     expect(session.leader).toBe('coden')
     expect(session.moderator).toBe('crann')
@@ -272,6 +387,6 @@ describe('Gameplay tests', () => {
     expect(session.state).toBe(State.voteOver)
     expect(session.players.solad.power).toBe(8)
     expect(session.players.coden.power).toBe(5)
-    expect(session.winner).toBe("nay")
+    expect(session.winner).toBe('nay')
   })
 })

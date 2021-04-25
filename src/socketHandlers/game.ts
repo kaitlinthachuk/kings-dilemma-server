@@ -71,6 +71,19 @@ export default (io: Server, socket: Socket) => {
     session.removeAgendaToken(house, agendaToken)
     io.emit('game:state', session.getState())
   })
+
+  socket.on('game:addOutcome', (outcome) => {
+    session.addOutcome(outcome)
+    io.emit('game:state', session.getState())
+  })
+
+  socket.on('game:removeOutcome', (outcome) => {
+    session.removeOutcome(outcome)
+    io.emit('game:state', session.getState())
+  })
+
+  socket.on('game:startVoting', () => {
+    session.startVoting()
+    io.emit('game:state', session.getState())
+  })
 }
-
-
