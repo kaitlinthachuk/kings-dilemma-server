@@ -114,6 +114,7 @@ export class Session {
       message: this.message,
       chronicleStickersUrl: this.chronicleStickersUrl,
       becomeModAvailable: this.becomeModAvailable,
+      votingCardUrl: this.votingCardUrl
     }
     // console.log(gameState)
     return gameState
@@ -143,14 +144,6 @@ export class Session {
 
   endGame() {
     this.state = State.gameOver
-  }
-
-  setVotingCardUrl(url: string) {
-    this.votingCardUrl = url
-  }
-
-  setchronicleStickersUrl(url: string) {
-    this.chronicleStickersUrl = url
   }
 
   addOutcome(outcome: Outcome) {

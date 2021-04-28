@@ -45,11 +45,6 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   }
 
-  const gameOver = () => {
-    session.endGame()
-    io.emit('game:state', session.getState())
-  }
-
   socket.on('player:join', () => {
     socket.emit('game:state', session.getState()) // only emit to client
   })
@@ -60,5 +55,4 @@ export default (io: Server, socket: Socket) => {
   socket.on('player:breakLeaderTie', breakLeaderTie)
   socket.on('player:crave', updateCrave)
   socket.on('player:prestige', updatePrestige)
-  socket.on('player:gameOver', gameOver) // TODO should GM specific actions come from player?
 }

@@ -194,6 +194,12 @@ const removeVotingOutcome = (type, resource) => {
 const startVoting = () => {
   socket.emit('game:startVoting')
 }
+const startGame = () => {
+  socket.emit("game:start");
+}
+const endGame = () => {
+  socket.emit("game:done");
+}
 // get game state on joining
 socket.emit('game:getState')
 socket.on(
@@ -217,6 +223,9 @@ socket.on(
     message,
   }) => {
     const compiled = [
+      buttonTemplate({ title: 'Start Game', onClick: 'startGame' }),
+      buttonTemplate({ title: 'Start Voting', onClick: 'startVoting' }),
+      buttonTemplate({ title: 'End Game', onClick: 'endGame' }),
       playerSelectTemplate({
         title: 'Turn',
         value: turn,
@@ -249,7 +258,6 @@ socket.on(
         ayeOutcomes: ayeOutcomes,
         nayOutcomes: nayOutcomes,
       }),
-      buttonTemplate({ title: 'Start Voting', onClick: 'startVoting' }),
       booleanTemplate({
         title: 'Vote Tie',
         value: voteTie,

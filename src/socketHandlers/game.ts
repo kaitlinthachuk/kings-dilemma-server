@@ -12,6 +12,11 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   })
 
+  socket.on('game:done', () => {
+    session.endGame()
+    io.emit('game:state', session.getState())
+  })
+
   socket.on('game:setMessage', (message) => {
     session.message = message
     io.emit('game:state', session.getState())
@@ -84,6 +89,16 @@ export default (io: Server, socket: Socket) => {
 
   socket.on('game:startVoting', () => {
     session.startVoting()
+    io.emit('game:state', session.getState())
+  })
+
+  socket.on('game:updateChronicleUrl', (url) => {
+    session.chronicleStickersUrl = url
+    io.emit('game:state', session.getState())
+  })
+
+  socket.on('game:updateVotingCardUrl', (url) => {
+    session.votingCardUrl = url
     io.emit('game:state', session.getState())
   })
 }
