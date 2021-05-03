@@ -2,9 +2,10 @@
 
 Server for King's Dilemma
 
-## How to run
+## Setup
 
 ```
 $ npm install
+$ npm run prepare
 $ npm run dev
 ```
