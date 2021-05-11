@@ -195,10 +195,13 @@ const startVoting = () => {
   socket.emit('game:startVoting')
 }
 const startGame = () => {
-  socket.emit("game:start");
+  socket.emit('game:start')
 }
 const endGame = () => {
-  socket.emit("game:done");
+  socket.emit('game:done')
+}
+const resetGameState = () => {
+  socket.emit('game:reset')
 }
 // get game state on joining
 socket.emit('game:getState')
@@ -273,6 +276,7 @@ socket.on(
         value: winner,
         onChange: 'updateWinner',
       }),
+      buttonTemplate({ title: 'Reset Gamestate', onClick: 'resetGameState' }),
     ]
     root.innerHTML = compiled
       .map((html) => `<div class="card">${html}</div>`)

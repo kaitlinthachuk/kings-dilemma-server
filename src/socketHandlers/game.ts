@@ -101,4 +101,9 @@ export default (io: Server, socket: Socket) => {
     session.votingCardUrl = url
     io.emit('game:state', session.getState())
   })
+
+  socket.on('game:reset', () => {
+    session.resetInstance()
+    io.emit('game:state', session.getState())
+  })
 }

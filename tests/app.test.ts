@@ -390,3 +390,9 @@ describe('Gameplay tests', () => {
     expect(session.winner).toBe('nay')
   })
 })
+
+/*Bugs to test:
+-secret agenda cards are double during selection phase
+-hook up coins and power mod in gm
+-fix voteDisplay, slection not working, not rememebering previous choice, logic needs better handling
+*/
