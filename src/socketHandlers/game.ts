@@ -106,4 +106,14 @@ export default (io: Server, socket: Socket) => {
     session.resetInstance()
     io.emit('game:state', session.getState())
   })
+
+  socket.on('game:updatePower', (value, house) => {
+    session.players[house].power = value
+    io.emit('game:state', session.getState())
+  })
+
+  socket.on('game:updateCoin', (value, house) => {
+    session.players[house].coins = value
+    io.emit('game:state', session.getState())
+  })
 }
