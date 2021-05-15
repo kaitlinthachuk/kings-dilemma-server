@@ -10,5 +10,6 @@
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
     "resolveJsonModule": true
-  }
+  },
+  "include": ["src/**/*"]
 }
