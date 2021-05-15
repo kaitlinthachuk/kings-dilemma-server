@@ -1,4 +1,5 @@
 node_modules
+build
 
 # ignore vscode config files
 .vscode/*
