@@ -114,7 +114,7 @@ export class Session {
       message: this.message,
       chronicleStickersUrl: this.chronicleStickersUrl,
       becomeModAvailable: this.becomeModAvailable,
-      votingCardUrl: this.votingCardUrl
+      votingCardUrl: this.votingCardUrl,
     }
     // console.log(gameState)
     return gameState
@@ -219,13 +219,16 @@ export class Session {
       this.players[vote.house].coins += 1
     }
 
-    if (vote.power > this.maxPowerCommitted(this.votes)) {
-      this.updateLeader(vote.house)
-    }
+    const currMaxPower = this.maxPowerCommitted(this.votes)
+
     if (this.votes[vote.house]) {
       this.votes[vote.house].power += vote.power
     } else {
       this.votes[vote.house] = vote
+    }
+
+    if (this.votes[vote.house].power > currMaxPower) {
+      this.updateLeader(vote.house)
     }
 
     this.checkIfVotingEnd(vote.house)
@@ -287,14 +290,8 @@ export class Session {
     }
   }
 
-  private maxPowerCommitted(votes: Record<string, Vote>) {
-    let maxPower = 0
-    for (let house in votes) {
-      if (votes[house].power > maxPower) {
-        maxPower = votes[house].power
-      }
-    }
-    return maxPower
+  private maxPowerCommitted(votes: Record<string, Vote>): number {
+    return Math.max(...Object.values(votes).map((vote) => vote.power))
   }
 
   private seperateVotes() {
