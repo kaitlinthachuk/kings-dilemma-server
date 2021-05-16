@@ -9,10 +9,9 @@ type Socket = _Socket & { house: string }
 
 export default (io: Server, socket: Socket) => {
   const selectHouse = (house: string) => {
-    console.log({ house })
     session.addPlayer(house)
-    socket.house = house // add house to socket object
-    io.emit('game:state', session.getState())
+    socket.house = house // add house to socket session for this client
+    io.emit('game:state', { from: socket.house, ...session.getState() })
   }
 
   const selectSecretAgenda = (secretAgendaName: string) => {
@@ -22,7 +21,7 @@ export default (io: Server, socket: Socket) => {
 
   const vote = (vote: Vote) => {
     session.updateVote(vote)
-    io.emit('game:state', session.getState())
+    io.emit('game:state', { from: socket.house, ...session.getState() })
   }
 
   const breakTie = (winner: string) => {

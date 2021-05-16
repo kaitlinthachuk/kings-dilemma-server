@@ -10,10 +10,11 @@ describe('Gameplay tests', () => {
   let serverSocket: Server
   let clients: Record<string, Socket>
   let session = Session.getInstance()
-  const createClient = (port: string): Promise<Socket> => {
+  const createClient = (port: string, player: string): Promise<Socket> => {
     return new Promise((resolve, reject) => {
-      // @ts-ignore
       const socket = io(`http://localhost:${port}`)
+      // @ts-ignore
+      socket.house = player // add house to client socket object
       socket.on('connect', () => resolve(socket))
       setTimeout(() => {
         reject(new Error('failed to connect :('))
@@ -21,13 +22,19 @@ describe('Gameplay tests', () => {
     })
   }
 
-  const ackEmit = async (
+  const ackEmit = (
     socket: Socket,
     event: string,
     ...args: any[]
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
-      socket.on('game:state', () => resolve())
+      socket.on('game:state', (gameState: Record<string, unknown>) => {
+        // @ts-ignore
+        if (gameState.from === socket.house) {
+          // only resovle if gamestate response is from this players request
+          resolve()
+        }
+      })
       socket.emit(event, ...args)
     })
   }
@@ -38,7 +45,9 @@ describe('Gameplay tests', () => {
       const players = ['tork', 'solad', 'crann', 'coden', 'tiryll']
       // @ts-ignore
       const port = httpServer.address().port
-      const sockets = await Promise.all(players.map(() => createClient(port)))
+      const sockets = await Promise.all(
+        players.map((player) => createClient(port, player)),
+      )
       clients = Object.fromEntries(
         players.map((_, i) => [players[i], sockets[i]]),
       )
@@ -47,19 +56,25 @@ describe('Gameplay tests', () => {
     })
   })
 
-  beforeEach(() => {
+  beforeEach(async (done) => {
     session.resetInstance()
-    session.addPlayer('tork')
-    session.addPlayer('solad')
-    session.addPlayer('crann')
-    session.addPlayer('coden')
-    session.addPlayer('tiryll')
+    await ackEmit(clients.tork, 'player:selectHouse', 'tork')
+    await ackEmit(clients.solad, 'player:selectHouse', 'solad')
+    await ackEmit(clients.crann, 'player:selectHouse', 'crann')
+    await ackEmit(clients.coden, 'player:selectHouse', 'coden')
+    await ackEmit(clients.tiryll, 'player:selectHouse', 'tiryll')
+    // session.addPlayer('tork')
+    // session.addPlayer('solad')
+    // session.addPlayer('crann')
+    // session.addPlayer('coden')
+    // session.addPlayer('tiryll')
     session.startGame()
     session.updateSecretAgenda('tork', session.secretAgendas[0].name)
     session.updateSecretAgenda('solad', session.secretAgendas[0].name)
     session.updateSecretAgenda('crann', session.secretAgendas[0].name)
     session.updateSecretAgenda('coden', session.secretAgendas[0].name)
     session.updateSecretAgenda('tiryll', session.secretAgendas[0].name)
+    done()
   })
 
   afterAll((done) => {
@@ -389,10 +404,53 @@ describe('Gameplay tests', () => {
     expect(session.players.coden.power).toBe(5)
     expect(session.winner).toBe('nay')
   })
-})
 
-/*Bugs to test:
--secret agenda cards are double during selection phase
--hook up coins and power mod in gm
--fix voteDisplay, slection not working, not rememebering previous choice, logic needs better handling
-*/
+  fit('should not end vote early when new leader', async () => {
+    session.availablePower = 3
+    session.leader = 'tork'
+    session.moderator = 'tork'
+    session.state = State.voting
+    session.turnOrder = ['tork', 'crann', 'tiryll', 'coden', 'solad']
+    session.turn = 'tork'
+
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.crann, 'player:vote', {
+      house: 'crann',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.coden, 'player:vote', {
+      house: 'coden',
+      type: 'nay',
+      power: 3,
+    })
+    await ackEmit(clients.solad, 'player:vote', {
+      house: 'solad',
+      type: 'gather',
+      power: 0,
+    })
+    await ackEmit(clients.tork, 'player:vote', {
+      house: 'tork',
+      type: 'aye',
+      power: 1,
+    })
+    await ackEmit(clients.tiryll, 'player:vote', {
+      house: 'tiryll',
+      type: 'aye',
+      power: 3,
+    })
+
+    expect(session.state).toBe(State.voting)
+    expect(session.leader).toBe('tiryll')
+    expect(session.turn).toBe('coden')
+  })
+})
