@@ -11,8 +11,6 @@ export class Player {
   agendaTokens: AgendaToken[]
   secretAgenda: SecretAgenda | null
   houseNumber: number
-  isLeader: boolean
-  isModerator: boolean
 
   constructor(house: string, prestige: number, crave: number) {
     this.house = house
@@ -23,7 +21,5 @@ export class Player {
     this.agendaTokens = []
     this.secretAgenda = null
     this.houseNumber = (houseData as any)[house].houseNumber
-    this.isLeader = false
-    this.isModerator = false
   }
 }

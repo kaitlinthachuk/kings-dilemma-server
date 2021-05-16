@@ -135,9 +135,7 @@ export class Session {
       return a.prestige - b.prestige
     })
     this.leader = players[players.length - 1].house
-    players[players.length - 1].isLeader = true
     this.moderator = players[0].house
-    players[0].isModerator = true
     this.turnOrder = players.map((player) => player.house)
     this.turn = this.moderator
   }
@@ -399,14 +397,10 @@ export class Session {
   }
 
   private updateLeader(newLeader: string) {
-    this.players[this.leader].isLeader = false
     this.leader = newLeader
-    this.players[newLeader].isLeader = true
   }
 
   private updateModerator(newModerator: string) {
-    this.players[this.moderator].isModerator = false
     this.moderator = newModerator
-    this.players[newModerator].isModerator = true
   }
 }
