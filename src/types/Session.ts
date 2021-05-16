@@ -120,9 +120,9 @@ export class Session {
     return gameState
   }
 
-  addPlayer(house: string) {
+  addPlayer(house: string, prestige: number, crave: number) {
     if (!this.players[house]) {
-      this.players[house] = new Player(house)
+      this.players[house] = new Player(house, prestige, crave)
     }
   }
 
@@ -255,14 +255,6 @@ export class Session {
 
     this.distributePower(votes['gather'])
     this.takePowerFromWinners(votes[this.winner])
-  }
-
-  updateCrave(house: string, crave: number) {
-    this.players[house].crave = crave
-  }
-
-  updatePrestige(house: string, prestige: number) {
-    this.players[house].prestige = prestige
   }
 
   private whoIsNext(house: string) {

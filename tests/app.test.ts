@@ -58,11 +58,11 @@ describe('Gameplay tests', () => {
 
   beforeEach(async (done) => {
     session.resetInstance()
-    await ackEmit(clients.tork, 'player:selectHouse', 'tork')
-    await ackEmit(clients.solad, 'player:selectHouse', 'solad')
-    await ackEmit(clients.crann, 'player:selectHouse', 'crann')
-    await ackEmit(clients.coden, 'player:selectHouse', 'coden')
-    await ackEmit(clients.tiryll, 'player:selectHouse', 'tiryll')
+    await ackEmit(clients.tork, 'player:selectHouse', 'tork', 5, 2)
+    await ackEmit(clients.solad, 'player:selectHouse', 'solad', 4, 3)
+    await ackEmit(clients.crann, 'player:selectHouse', 'crann', 6, 1)
+    await ackEmit(clients.coden, 'player:selectHouse', 'coden', 1, 10)
+    await ackEmit(clients.tiryll, 'player:selectHouse', 'tiryll', 2, 7)
     // session.addPlayer('tork')
     // session.addPlayer('solad')
     // session.addPlayer('crann')

@@ -8,8 +8,8 @@ const session = Session.getInstance()
 type Socket = _Socket & { house: string }
 
 export default (io: Server, socket: Socket) => {
-  const selectHouse = (house: string) => {
-    session.addPlayer(house)
+  const selectHouse = (house: string, prestige: number, crave: number) => {
+    session.addPlayer(house, prestige, crave)
     socket.house = house // add house to socket session for this client
     io.emit('game:state', { from: socket.house, ...session.getState() })
   }
@@ -34,16 +34,6 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   }
 
-  const updateCrave = (crave: number) => {
-    session.updateCrave(socket.house, crave)
-    io.emit('game:state', session.getState())
-  }
-
-  const updatePrestige = (prestige: number) => {
-    session.updatePrestige(socket.house, prestige)
-    io.emit('game:state', session.getState())
-  }
-
   socket.on('player:join', () => {
     socket.emit('game:state', session.getState()) // only emit to client
   })
@@ -52,6 +42,4 @@ export default (io: Server, socket: Socket) => {
   socket.on('player:vote', vote)
   socket.on('player:breakTie', breakTie)
   socket.on('player:breakLeaderTie', breakLeaderTie)
-  socket.on('player:crave', updateCrave)
-  socket.on('player:prestige', updatePrestige)
 }
