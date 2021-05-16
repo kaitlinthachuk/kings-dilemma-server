@@ -57,7 +57,7 @@ export class Session {
     this.becomeModAvailable = true
     this.votingCardUrl = ''
     this.chronicleStickersUrl = ''
-    this.message = 'Hello World'
+    this.message = 'Welcome!'
   }
 
   static getInstance(): Session {
@@ -91,7 +91,7 @@ export class Session {
     this.winner = ''
     this.leaderChoice = []
     this.becomeModAvailable = true
-    this.message = 'Hello World'
+    this.message = 'Welcome!'
   }
 
   getState() {
