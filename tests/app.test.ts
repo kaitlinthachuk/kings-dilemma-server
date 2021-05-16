@@ -9,7 +9,7 @@ describe('Gameplay tests', () => {
   let httpServer: HTTPServer
   let serverSocket: Server
   let clients: Record<string, Socket>
-  let session = Session.getInstance()
+  const session = Session.getInstance()
   const createClient = (port: string, player: string): Promise<Socket> => {
     return new Promise((resolve, reject) => {
       const socket = io(`http://localhost:${port}`)
@@ -95,7 +95,7 @@ describe('Gameplay tests', () => {
 
     await ackEmit(clients.solad, 'player:vote', vote)
 
-    expect(session.votes['solad']).toEqual(vote)
+    expect(session.votes.solad).toEqual(vote)
     expect(session.turn).toBe('tork')
     expect(session.leader).toBe('solad')
     expect(session.becomeModAvailable).toBe(true)

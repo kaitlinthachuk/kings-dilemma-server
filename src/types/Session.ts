@@ -235,13 +235,13 @@ export class Session {
   breakTie(winner: string) {
     const votes = this.seperateVotes()
     this.winner = winner
-    let winnerVotes = votes[this.winner]
+    const winnerVotes = votes[this.winner]
     this.voteTie = false
 
     if (winnerVotes.length !== 0 && this.checkForLeaderTie(winnerVotes)) {
       return
     }
-    this.distributePower(votes['gather'])
+    this.distributePower(votes.gather)
     this.takePowerFromWinners(votes[winner])
   }
 
@@ -251,7 +251,7 @@ export class Session {
     this.leaderChoice = []
     this.updateLeader(winner)
 
-    this.distributePower(votes['gather'])
+    this.distributePower(votes.gather)
     this.takePowerFromWinners(votes[this.winner])
   }
 
@@ -264,7 +264,7 @@ export class Session {
   }
 
   private checkIfVotingEnd(house: string) {
-    let nextHouse = this.whoIsNext(house)
+    const nextHouse = this.whoIsNext(house)
 
     if (nextHouse === this.leader) {
       this.state = State.voteOver
@@ -285,11 +285,11 @@ export class Session {
   }
 
   private seperateVotes() {
-    let ayeVotes: Vote[] = [],
-      nayVotes: Vote[] = [],
-      gatherVotes: Vote[] = []
+    const ayeVotes: Vote[] = []
+    const nayVotes: Vote[] = []
+    const gatherVotes: Vote[] = []
 
-    for (let house in this.votes) {
+    for (const house in this.votes) {
       switch (this.votes[house].type) {
         case 'aye':
           ayeVotes.push(this.votes[house])
@@ -322,8 +322,8 @@ export class Session {
 
   private processVoting() {
     const votes = this.seperateVotes(),
-      ayePower = this.countPower(votes['aye']),
-      nayPower = this.countPower(votes['nay'])
+      ayePower = this.countPower(votes.aye),
+      nayPower = this.countPower(votes.nay)
 
     //see if there is a tie
     if (ayePower === nayPower) {
@@ -333,12 +333,12 @@ export class Session {
     }
 
     this.winner = ayePower > nayPower ? 'aye' : 'nay'
-    let winnerVotes = votes[this.winner]
+    const winnerVotes = votes[this.winner]
 
     if (this.checkForLeaderTie(winnerVotes)) {
       return
     }
-    this.distributePower(votes['gather'])
+    this.distributePower(votes.gather)
     this.takePowerFromWinners(votes[this.winner])
   }
 
@@ -346,7 +346,7 @@ export class Session {
     //if no tie then check if leader is on the winning side
     if (this.votes[this.leader].type !== this.winner) {
       //if no pick new leader, if tie get mod to break it -> return
-      let potentialLeaders = this.getLeaders(votes)
+      const potentialLeaders = this.getLeaders(votes)
       if (potentialLeaders.length > 1) {
         this.leaderTie = true
         this.leaderChoice = potentialLeaders
@@ -365,7 +365,7 @@ export class Session {
       this.updateLeader(this.moderator)
     }
 
-    let powerPer = Math.floor(this.availablePower / votes.length)
+    const powerPer = Math.floor(this.availablePower / votes.length)
 
     votes.forEach((vote) => {
       this.players[vote.house].power += powerPer
@@ -378,7 +378,7 @@ export class Session {
       return b.power - a.power //desc
     })
 
-    let leaders = votes
+    const leaders = votes
       .filter((vote, index, array) => {
         return vote.power === array[0].power
       })

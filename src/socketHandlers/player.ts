@@ -1,6 +1,4 @@
 import { Server, Socket as _Socket } from 'socket.io'
-import { Outcome } from '../types/Outcome'
-import { AgendaToken } from '../types/AgendaToken'
 import { Session } from '../types/Session'
 import { Vote } from '../types/Vote'
 const session = Session.getInstance()
