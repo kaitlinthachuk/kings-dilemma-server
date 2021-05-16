@@ -14,7 +14,7 @@ export default (io: Server, socket: Socket) => {
 
   const selectSecretAgenda = (secretAgendaName: string) => {
     session.updateSecretAgenda(socket.house, secretAgendaName)
-    io.emit('game:state', session.getState())
+    io.emit('game:state', { from: socket.house, ...session.getState() })
   }
 
   const vote = (vote: Vote) => {
@@ -24,12 +24,12 @@ export default (io: Server, socket: Socket) => {
 
   const breakTie = (winner: string) => {
     session.breakTie(winner)
-    io.emit('game:state', session.getState())
+    io.emit('game:state', { from: socket.house, ...session.getState() })
   }
 
   const breakLeaderTie = (winner: string) => {
     session.breakLeaderTie(winner)
-    io.emit('game:state', session.getState())
+    io.emit('game:state', { from: socket.house, ...session.getState() })
   }
 
   socket.on('player:join', () => {

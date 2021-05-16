@@ -63,11 +63,6 @@ describe('Gameplay tests', () => {
     await ackEmit(clients.crann, 'player:selectHouse', 'crann', 6, 1)
     await ackEmit(clients.coden, 'player:selectHouse', 'coden', 1, 10)
     await ackEmit(clients.tiryll, 'player:selectHouse', 'tiryll', 2, 7)
-    // session.addPlayer('tork')
-    // session.addPlayer('solad')
-    // session.addPlayer('crann')
-    // session.addPlayer('coden')
-    // session.addPlayer('tiryll')
     session.startGame()
     session.updateSecretAgenda('tork', session.secretAgendas[0].name)
     session.updateSecretAgenda('solad', session.secretAgendas[0].name)
@@ -405,7 +400,7 @@ describe('Gameplay tests', () => {
     expect(session.winner).toBe('nay')
   })
 
-  fit('should not end vote early when new leader', async () => {
+  it('should not end vote early when new leader', async () => {
     session.availablePower = 3
     session.leader = 'tork'
     session.moderator = 'tork'
