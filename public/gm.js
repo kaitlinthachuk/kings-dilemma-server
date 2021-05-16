@@ -89,7 +89,7 @@ const votingOutcomeTemplate = Handlebars.compile(`
         <option>Morale</option>
         <option>Welfare</option>
         <option>Knowledge</option>
-        <option>Chronicle Sticker</option>
+        <option>Chronicle</option>
       </select>
       <input type="submit" value="+">
     </form>
@@ -101,9 +101,9 @@ const playerTemplate = Handlebars.compile(`
     <div id="{{house}}">
       <h3>{{house}}</h3>
       <label for="coins">Coins</label>
-      <input name="coins" type="number" value={{coins}} onChange="coinOnChange(this.value, {{house}})"/>
+      <input name="coins" type="number" value={{coins}} onChange="coinOnChange(this.value, '{{house}}')"/>
       <label for="power">Power</label>
-      <input name="power" type="number" value={{power}} onChange="powerOnChange(this.value, {{house}})"/>
+      <input name="power" type="number" value={{power}} onChange="powerOnChange(this.value, '{{house}}')"/>
       <ul>
         {{#each agendaTokens}}
           <li>
