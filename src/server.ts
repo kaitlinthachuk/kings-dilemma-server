@@ -14,7 +14,6 @@ const initServer = (): [HTTPServer, Server] => {
   })
 
   io.on('connection', (socket: Socket) => {
-    socket = socket
     // @ts-ignore
     registerPlayerHandlers(io, socket)
     registerGameHandlers(io, socket)
