@@ -73,6 +73,7 @@ export class Session {
 
     // randomly remove 1 secret agenda
     const randIndex = Math.floor(Math.random() * secretAgendasData.length - 1)
+    console.log({ randIndex })
     this.secretAgendas = [
       ...secretAgendasData.slice(0, randIndex),
       ...secretAgendasData.slice(randIndex + 1),
