@@ -12,6 +12,6 @@ module.exports = {
     'no-var': 'error',
     'dot-notation': 'error',
     'prefer-const': 'error',
-    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/ban-ts-comment': 'warn',
   },
 }
