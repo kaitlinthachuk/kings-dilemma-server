@@ -369,7 +369,8 @@ export class Session {
     const powerPer = Math.floor(this.availablePower / votes.length)
 
     votes.forEach((vote) => {
-      this.players[vote.house].power += powerPer
+      this.players[vote.house].power =
+        parseInt(this.players[vote.house].power as any) + powerPer
       this.availablePower -= powerPer
     })
   }
