@@ -77,8 +77,8 @@ export default (io: Server, socket: Socket) => {
     io.emit('game:state', session.getState())
   })
 
-  socket.on('game:addOutcome', (outcome) => {
-    session.addOutcome(outcome)
+  socket.on('game:addOutcome', (side, outcome) => {
+    session.addOutcome(side, outcome)
     io.emit('game:state', session.getState())
   })
 

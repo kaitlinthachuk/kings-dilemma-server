@@ -145,8 +145,8 @@ export class Session {
     this.state = State.gameOver
   }
 
-  addOutcome(outcome: Outcome) {
-    if (outcome.type === 'pos') {
+  addOutcome(side: string, outcome: Outcome) {
+    if (side === 'aye') {
       this.ayeOutcomes.push(outcome)
     } else {
       this.nayOutcomes.push(outcome)

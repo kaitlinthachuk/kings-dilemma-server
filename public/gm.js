@@ -62,6 +62,7 @@ const selectStateTemplate = Handlebars.compile(`
 `)
 const votingOutcomeTemplate = Handlebars.compile(`
 <h2>Voting Outcomes</h2>
+  <h3>Aye</h3>
   <ul>
   {{#each ayeOutcomes }}
     <li>
@@ -70,6 +71,22 @@ const votingOutcomeTemplate = Handlebars.compile(`
     </li>
   {{/each}}
   </ul>
+  <form id="votingOutcomesAye" onsubmit="addVotingOutcome('aye');return false">
+    <input id="voting-pos" name="posneg" value="pos" type="radio" checked>
+    <label for="voting-pos">pos</label>
+    <input id="voting-neg" name="posneg" value="neg" type="radio">
+    <label for="voting-neg">neg</label>
+    <select name="resource">
+      <option>Influence</option>
+      <option>Wealth</option>
+      <option>Morale</option>
+      <option>Welfare</option>
+      <option>Knowledge</option>
+      <option>Chronicle</option>
+    </select>
+    <input type="submit" value="+">
+  </form>
+  <h3>Nay</h3>
   <ul>
   {{#each nayOutcomes }}
   <li>
@@ -78,21 +95,21 @@ const votingOutcomeTemplate = Handlebars.compile(`
   </li>
   {{/each}}
   </ul>
-    <form id="votingOutcomes" onsubmit="addVotingOutcome();return false">
-      <input id="voting-pos" name="posneg" value="pos" type="radio" checked>
-      <label for="voting-pos">pos</label>
-      <input id="voting-neg" name="posneg" value="neg" type="radio">
-      <label for="voting-neg">neg</label>
-      <select name="resource">
-        <option>Influence</option>
-        <option>Wealth</option>
-        <option>Morale</option>
-        <option>Welfare</option>
-        <option>Knowledge</option>
-        <option>Chronicle</option>
-      </select>
-      <input type="submit" value="+">
-    </form>
+  <form id="votingOutcomesNay" onsubmit="addVotingOutcome('nay');return false">
+    <input id="voting-pos" name="posneg" value="pos" type="radio" checked>
+    <label for="voting-pos">pos</label>
+    <input id="voting-neg" name="posneg" value="neg" type="radio">
+    <label for="voting-neg">neg</label>
+    <select name="resource">
+      <option>Influence</option>
+      <option>Wealth</option>
+      <option>Morale</option>
+      <option>Welfare</option>
+      <option>Knowledge</option>
+      <option>Chronicle</option>
+    </select>
+    <input type="submit" value="+">
+  </form>
 `)
 
 const playerTemplate = Handlebars.compile(`
@@ -137,7 +154,7 @@ const playerTemplate = Handlebars.compile(`
 
 const messageBox = Handlebars.compile(`
   <h2>Message box</h2>
-  <textarea onchange="updateMessage(this.value)">{{message}}</textarea>
+  <textarea cols="100" rows="15" onchange="updateMessage(this.value)">{{message}}</textarea>
 `)
 
 const buttonTemplate = Handlebars.compile(`
@@ -194,10 +211,12 @@ const addAgendaToken = (player) => {
 const removeAgendaToken = (player, type, resource) => {
   socket.emit('game:removeAgendaToken', player, { type, resource })
 }
-const addVotingOutcome = () => {
-  const formElem = document.querySelector(`#votingOutcomes`)
+const addVotingOutcome = (side) => {
+  const formElem = document.querySelector(
+    side === 'aye' ? '#votingOutcomesAye' : '#votingOutcomesNay',
+  )
   const formData = new FormData(formElem)
-  socket.emit('game:addOutcome', {
+  socket.emit('game:addOutcome', side, {
     type: formData.get('posneg'),
     resource: formData.get('resource'),
   })
