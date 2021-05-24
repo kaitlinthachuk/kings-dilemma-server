@@ -100,6 +100,11 @@ const playerTemplate = Handlebars.compile(`
   {{#each this}}
     <div id="{{house}}">
       <h3>{{house}}</h3>
+      <label for="prestige">Prestige</label>
+      <span name="prestige">{{prestige}}</span>
+      <label for="crave">Crave</label>
+      <span name="crave">{{crave}}</span>
+      <br>
       <label for="coins">Coins</label>
       <input name="coins" type="number" value={{coins}} onChange="coinOnChange(this.value, '{{house}}')"/>
       <label for="power">Power</label>
